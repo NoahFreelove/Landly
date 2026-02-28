@@ -6,6 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 import models  # noqa: F401 — ensure all models are registered with Base
 from routers.auth import router as auth_router
+from routers.dashboard import router as dashboard_router
+from routers.units import router as units_router
+from routers.payments import router as payments_router
+from routers.markets import router as markets_router
+from routers.chat import router as chat_router
+from routers.notifications import router as notifications_router
+from routers.ratings import router as ratings_router
+from routers.admin import router as admin_router
 
 
 @asynccontextmanager
@@ -32,6 +40,14 @@ app.add_middleware(
 
 
 app.include_router(auth_router)
+app.include_router(dashboard_router)
+app.include_router(units_router)
+app.include_router(payments_router)
+app.include_router(markets_router)
+app.include_router(chat_router)
+app.include_router(notifications_router)
+app.include_router(ratings_router)
+app.include_router(admin_router)
 
 
 @app.get("/")
