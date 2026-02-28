@@ -134,6 +134,21 @@ export async function getLeaderboard(token: string) {
   return api<any[]>("/api/markets/leaderboard", { token });
 }
 
+// ---- Ratings ----
+export async function rateNeighbor(
+  token: string,
+  userId: number,
+  noise: number,
+  cleanliness: number,
+  loyalty: number
+) {
+  return api<any>(`/api/ratings/${userId}`, {
+    method: "POST",
+    body: JSON.stringify({ noise, cleanliness, loyalty }),
+    token,
+  });
+}
+
 // ---- Notifications ----
 export async function getNotifications(token: string) {
   return api<any[]>("/api/notifications", { token });
