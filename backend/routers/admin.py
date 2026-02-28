@@ -8,17 +8,17 @@ import random
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
-PASSIVE_AGGRESSIVE_NOTICES = [
-    ("Breathing Analysis", "Your nocturnal breathing exceeded acceptable decibel levels. Consider breathing more quietly.", "violation"),
-    ("Hallway Usage", "Corridor sensors detected you spent 4.7 minutes in the hallway. Optimal transit time is 45 seconds.", "warning"),
-    ("Water Consumption", "Your water usage is 12% above building average. Consider being less hydrated.", "general"),
-    ("Noise Complaint", "An automated noise complaint has been filed against your unit. Source: existing.", "violation"),
-    ("Loyalty Check", "You have not submitted a positive building review in 7 days. This has been noted.", "general"),
-    ("Temperature Alert", "Your thermostat was set 2 degrees above recommended. Energy surcharge applied.", "warning"),
-    ("Social Credit Notice", "Your proximity to low-scored tenants has been recorded. Choose associations wisely.", "warning"),
-    ("Rent Optimization", "Based on market analysis, your rent has been optimally adjusted upward.", "general"),
-    ("Maintenance Update", "Your maintenance request has been received. It will be addressed within the maximum legal timeframe.", "maintenance"),
-    ("Compliance Reminder", "This is your daily reminder that compliance is comfort. Non-compliance is discomfort.", "general"),
+CORPORATE_NOTICES = [
+    ("Noise Advisory", "Elevated noise levels were detected in your unit. A courtesy reminder has been logged to your resident file.", "violation"),
+    ("Visitor Log Update", "A visitor to your unit was logged by the Smart Home system. No action required at this time.", "general"),
+    ("Community Score Adjustment", "Your Community Score has been adjusted based on recent resident feedback. View your updated score in the dashboard.", "warning"),
+    ("Lease Renewal Notice", "Your lease renewal assessment has been automatically initiated. Our team will be in touch with updated terms.", "general"),
+    ("Maintenance Window", "Scheduled maintenance will occur in your building. Access to certain amenities may be temporarily limited.", "maintenance"),
+    ("Payment Confirmation", "Your recent payment has been processed successfully. Thank you for being a valued Landly resident.", "general"),
+    ("Smart Home Alert", "Your Smart Home system detected unusual activity patterns. This has been noted for your safety.", "warning"),
+    ("Package Notification", "A package was received and scanned at your building's secure mailroom. Retrieval logged for your records.", "general"),
+    ("Energy Usage Report", "Your energy consumption this month was 12% above building average. Consider reviewing your Smart Home settings.", "warning"),
+    ("Community Event", "You're invited to this month's Resident Appreciation Mixer. Attendance is optional but noted.", "general"),
 ]
 
 @router.get("/current-date", response_model=SimulationStateResponse)
@@ -58,7 +58,7 @@ def advance_day(db: Session = Depends(get_db)):
         users = db.query(User).all()
         if users:
             target = random.choice(users)
-            notice = random.choice(PASSIVE_AGGRESSIVE_NOTICES)
+            notice = random.choice(CORPORATE_NOTICES)
             notif = Notification(user_id=target.id, title=notice[0], message=notice[1], category=notice[2])
             db.add(notif)
             events.append(f"Notification sent to {target.citizen_id}: {notice[0]}")
@@ -102,20 +102,20 @@ def advance_month(db: Session = Depends(get_db)):
         total_debt = sum(p.amount + p.accrued_interest for p in user_overdue)
         if total_debt > 2000 and u.status != "eviction_pending":
             u.status = "eviction_pending"
-            events.append(f"{u.citizen_id} flagged for eviction (debt: ${round(total_debt, 2)})")
+            events.append(f"{u.citizen_id} flagged for lease review (debt: ${round(total_debt, 2)})")
 
-        # Decrease social credit for overdue payments
+        # Decrease community score for overdue payments
         if user_overdue:
             penalty = len(user_overdue) * 25
             u.social_credit_score = max(0, u.social_credit_score - penalty)
-            events.append(f"{u.citizen_id} social credit -{penalty}")
+            events.append(f"{u.citizen_id} Community Score -{penalty}")
 
     # Generate notifications for all users
     for u in users:
-        notice = random.choice(PASSIVE_AGGRESSIVE_NOTICES)
+        notice = random.choice(CORPORATE_NOTICES)
         notif = Notification(user_id=u.id, title=notice[0], message=notice[1], category=notice[2])
         db.add(notif)
-    events.append("Monthly notifications generated for all tenants")
+    events.append("Monthly notifications generated for all residents")
 
     # Resolve some markets randomly
     active_markets = db.query(Market).filter(Market.is_active == True).all()

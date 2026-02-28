@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Landly API",
-    description="Citizen Housing Management Portal — Backend Services",
+    description="Modern Living, Simplified — Backend Services",
     version="2.4.1",
     lifespan=lifespan,
 )
@@ -57,7 +57,7 @@ def root():
         "service": "Landly API",
         "version": "2.4.1",
         "status": "operational",
-        "message": "Compliance is comfort.",
+        "message": "Modern Living, Simplified.",
     }
 
 

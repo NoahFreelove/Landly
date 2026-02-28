@@ -4,8 +4,8 @@ import { StyletronRegistry } from "@/lib/styletron";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Landly — Citizen Housing Portal",
-  description: "Your AI-powered apartment management experience. Compliance is comfort.",
+  title: "Landly — Modern Living, Simplified",
+  description: "Your modern apartment management experience.",
 };
 
 export default function RootLayout({
@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased min-h-screen bg-surface-page text-zinc-100">
+    <html lang="en">
+      <body className="antialiased min-h-screen bg-surface-page text-gray-900">
         <StyletronRegistry>
           <AuthProvider>{children}</AuthProvider>
         </StyletronRegistry>

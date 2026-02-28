@@ -2,17 +2,17 @@
 
 import { Client, Server } from "styletron-engine-monolithic";
 import { Provider as StyletronProvider } from "styletron-react";
-import { createDarkTheme, BaseProvider } from "baseui";
+import { createLightTheme, BaseProvider } from "baseui";
 
 const engine =
   typeof window !== "undefined" ? new Client() : new Server();
 
-const landlyTheme = createDarkTheme({
+const landlyTheme = createLightTheme({
   colors: {
-    accent: "#3211d4",
-    negative: "#ef4444",
-    positive: "#00cc66",
-    warning: "#f59e0b",
+    accent: "#3B82F6",
+    negative: "#EF4444",
+    positive: "#10B981",
+    warning: "#F59E0B",
   },
   typography: {
     DisplayLarge: { fontFamily: "'Space Grotesk', sans-serif" },

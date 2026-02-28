@@ -5,12 +5,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
 :root {
-  --background: #131022;
-  --foreground: #e4e4e7;
-  --surface: #1d1c27;
-  --surface-elevated: #1c182f;
-  --border: #2b2839;
-  --primary: #3211d4;
+  --background: #FAFBFC;
+  --foreground: #111827;
+  --surface: #FFFFFF;
+  --surface-elevated: #F3F4F6;
+  --border: #E5E7EB;
+  --primary: #3B82F6;
 }
 
 * {
@@ -28,16 +28,19 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: #F3F4F6;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: #D1D5DB;
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
 
-/* Utility: uppercase tracked labels (surveillance aesthetic) */
+/* Utility: uppercase tracked labels */
 @layer utilities {
   .label-tracked {
-    @apply text-xs font-medium uppercase tracking-[0.15em] text-zinc-400;
+    @apply text-xs font-medium uppercase tracking-[0.15em] text-gray-500;
   }
 }

@@ -1,4 +1,4 @@
-"""Populate the database with dystopian test data."""
+"""Populate the database with realistic test data."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -7,7 +7,7 @@ from passlib.hash import bcrypt
 from database import engine, SessionLocal, Base
 from models import (
     User, Unit, Payment, KlarnaDebt,
-    Market, MarketBet, ChatMessage, ResourceMetric,
+    Market, MarketBet, ChatMessage,
     SimulationState, Notification, TenantRating,
 )
 
@@ -21,75 +21,105 @@ def seed():
     # ── Units ──────────────────────────────────────────────
     units = [
         Unit(
-            name="Pod-7X Alpha",
-            sector="North Quadrant",
-            level=7,
-            weekly_rent_credits=120,
-            monthly_rent_usd=1450.00,
-            radiation_level=0.3,
-            altitude=42,
-            smart_lock_status="locked",
-            oxygen_quality=94.2,
+            name="The Meridian 4B",
+            sector="Midtown East",
+            monthly_rent_usd=2450.00,
+            sqft=780,
+            bedrooms=1,
+            bathrooms=1,
+            floor=4,
+            pet_policy="Pets Welcome",
+            parking="$75/mo",
+            laundry="In-Unit",
+            year_built=2019,
+            smart_home=True,
+            noise_monitoring=True,
+            community_score_required=650,
             is_available=False,
         ),
         Unit(
-            name="Cell-12B Omega",
-            sector="East Industrial",
-            level=12,
-            weekly_rent_credits=85,
-            monthly_rent_usd=980.00,
-            radiation_level=1.7,
-            altitude=78,
-            smart_lock_status="locked",
-            oxygen_quality=87.5,
+            name="Apex Living 12F",
+            sector="Financial District",
+            monthly_rent_usd=3200.00,
+            sqft=950,
+            bedrooms=2,
+            bathrooms=1,
+            floor=12,
+            pet_policy="No Pets",
+            parking="Included",
+            laundry="In-Unit",
+            year_built=2022,
+            smart_home=True,
+            noise_monitoring=True,
+            community_score_required=700,
             is_available=True,
         ),
         Unit(
-            name="Hab-3F Sigma",
-            sector="Central Spire",
-            level=3,
-            weekly_rent_credits=200,
-            monthly_rent_usd=2400.00,
-            radiation_level=0.1,
-            altitude=18,
-            smart_lock_status="unlocked",
-            oxygen_quality=98.1,
+            name="Haven Studios 2A",
+            sector="Williamsburg",
+            monthly_rent_usd=1850.00,
+            sqft=520,
+            bedrooms=0,
+            bathrooms=1,
+            floor=2,
+            pet_policy="No Pets",
+            parking="None",
+            laundry="Shared",
+            year_built=2015,
+            smart_home=True,
+            noise_monitoring=True,
+            community_score_required=580,
             is_available=True,
         ),
         Unit(
-            name="Bunker-9 Delta",
-            sector="South Wasteland",
-            level=-2,
-            weekly_rent_credits=45,
-            monthly_rent_usd=520.00,
-            radiation_level=4.2,
-            altitude=-12,
-            smart_lock_status="override",
-            oxygen_quality=72.3,
+            name="Park & Pine 7C",
+            sector="Upper West Side",
+            monthly_rent_usd=4100.00,
+            sqft=1200,
+            bedrooms=2,
+            bathrooms=2,
+            floor=7,
+            pet_policy="Pets Welcome",
+            parking="Included",
+            laundry="In-Unit",
+            year_built=2021,
+            smart_home=True,
+            noise_monitoring=True,
+            community_score_required=720,
             is_available=True,
         ),
         Unit(
-            name="Suite-1A Platinum",
-            sector="Sky District",
-            level=50,
-            weekly_rent_credits=500,
-            monthly_rent_usd=6200.00,
-            radiation_level=0.0,
-            altitude=310,
-            smart_lock_status="locked",
-            oxygen_quality=99.8,
+            name="Greenline Residences 15D",
+            sector="Long Island City",
+            monthly_rent_usd=2800.00,
+            sqft=880,
+            bedrooms=1,
+            bathrooms=1,
+            floor=15,
+            pet_policy="Pets Welcome",
+            parking="$75/mo",
+            laundry="In-Unit",
+            year_built=2023,
+            smart_home=True,
+            noise_monitoring=True,
+            community_score_required=660,
             is_available=True,
         ),
         Unit(
-            name="Stack-22 Gamma",
-            sector="West Corridor",
-            level=22,
-            weekly_rent_credits=95,
-            monthly_rent_usd=1100.00,
-            radiation_level=0.8,
-            altitude=140,
-            smart_lock_status="locked",
-            oxygen_quality=91.0,
+            name="The Elm 3B",
+            sector="Bushwick",
+            monthly_rent_usd=1450.00,
+            sqft=600,
+            bedrooms=1,
+            bathrooms=1,
+            floor=3,
+            pet_policy="No Pets",
+            parking="None",
+            laundry="Shared",
+            year_built=2010,
+            smart_home=False,
+            noise_monitoring=True,
+            community_score_required=520,
             is_available=True,
         ),
     ]
@@ -100,7 +130,7 @@ def seed():
     password = bcrypt.hash("citizen123")
     users = [
         User(
-            citizen_id="CIT-7291",
+            citizen_id="RES-7291",
             name="Alex Mercer",
             password_hash=password,
             social_credit_score=620,
@@ -110,24 +140,24 @@ def seed():
             unit_id=units[0].id,
         ),
         User(
-            citizen_id="CIT-0042",
+            citizen_id="RES-0042",
             name="Jordan Blake",
             password_hash=password,
             social_credit_score=340,
             trust_score=0.31,
             status="probation",
             tier="bronze",
-            unit_id=units[3].id,
+            unit_id=units[5].id,
         ),
         User(
-            citizen_id="CIT-9999",
-            name="Admin Overlord",
+            citizen_id="RES-9999",
+            name="Admin User",
             password_hash=bcrypt.hash("admin"),
             social_credit_score=999,
             trust_score=1.0,
             status="compliant",
             tier="platinum",
-            unit_id=units[4].id,
+            unit_id=units[3].id,
         ),
     ]
     db.add_all(users)
@@ -139,7 +169,7 @@ def seed():
     payments = [
         Payment(
             user_id=users[0].id,
-            amount=1450.00,
+            amount=2450.00,
             payment_type="rent",
             status="overdue",
             due_date=now - timedelta(days=5),
@@ -157,7 +187,7 @@ def seed():
         ),
         Payment(
             user_id=users[0].id,
-            amount=1450.00,
+            amount=2450.00,
             payment_type="rent",
             status="paid",
             due_date=now - timedelta(days=35),
@@ -166,7 +196,7 @@ def seed():
         ),
         Payment(
             user_id=users[1].id,
-            amount=520.00,
+            amount=1450.00,
             payment_type="rent",
             status="overdue",
             due_date=now - timedelta(days=12),
@@ -175,7 +205,7 @@ def seed():
         ),
         Payment(
             user_id=users[1].id,
-            amount=520.00,
+            amount=1450.00,
             payment_type="rent",
             status="overdue",
             due_date=now - timedelta(days=42),
@@ -189,24 +219,24 @@ def seed():
     klarna = [
         KlarnaDebt(
             user_id=users[0].id,
-            item_name="Smart Lock Premium Upgrade",
-            total_amount=299.99,
-            installments=4,
-            installments_paid=1,
+            item_name="Security Deposit — The Meridian 4B",
+            total_amount=4900.00,
+            installments=6,
+            installments_paid=2,
             status="active",
         ),
         KlarnaDebt(
             user_id=users[0].id,
-            item_name="Radiation Shield Film",
-            total_amount=149.99,
+            item_name="Smart Home Setup Fee",
+            total_amount=299.99,
             installments=4,
             installments_paid=0,
             status="overdue",
         ),
         KlarnaDebt(
             user_id=users[1].id,
-            item_name="Emergency Oxygen Canister (6-pack)",
-            total_amount=89.99,
+            item_name="Security Deposit — The Elm 3B",
+            total_amount=2900.00,
             installments=4,
             installments_paid=2,
             status="active",
@@ -214,46 +244,46 @@ def seed():
     ]
     db.add_all(klarna)
 
-    # ── Markets ────────────────────────────────────────────
+    # ── Markets (eviction-focused) ────────────────────────
     markets = [
         Market(
-            question="Will sector-wide rent increase exceed 15% this quarter?",
-            category="rent",
-            yes_price=0.72,
-            no_price=0.28,
-            volume=4823,
+            question="Will Alex Mercer (RES-7291) be evicted by end of quarter?",
+            category="eviction",
+            yes_price=0.42,
+            no_price=0.58,
+            volume=1823,
             is_active=True,
         ),
         Market(
-            question="Will oxygen quality drop below 85% in North Quadrant?",
-            category="resources",
-            yes_price=0.45,
-            no_price=0.55,
-            volume=2190,
-            is_active=True,
-        ),
-        Market(
-            question="Will smart lock override affect 10+ units this month?",
-            category="security",
-            yes_price=0.61,
-            no_price=0.39,
-            volume=1567,
-            is_active=True,
-        ),
-        Market(
-            question="Will eviction rate exceed 8% by end of cycle?",
-            category="housing",
-            yes_price=0.38,
-            no_price=0.62,
+            question="Will Jordan Blake (RES-0042) miss 3+ consecutive payments?",
+            category="eviction",
+            yes_price=0.71,
+            no_price=0.29,
             volume=3402,
             is_active=True,
         ),
         Market(
-            question="Will Klarna default rate trigger collective penalty?",
-            category="debt",
+            question="Will The Elm 3B have a new tenant by March?",
+            category="eviction",
+            yes_price=0.35,
+            no_price=0.65,
+            volume=890,
+            is_active=True,
+        ),
+        Market(
+            question="Will average Community Score drop below 500 this cycle?",
+            category="eviction",
+            yes_price=0.28,
+            no_price=0.72,
+            volume=2190,
+            is_active=True,
+        ),
+        Market(
+            question="Will any resident in Financial District default on Klarna?",
+            category="eviction",
             yes_price=0.55,
             no_price=0.45,
-            volume=890,
+            volume=1567,
             is_active=True,
         ),
     ]
@@ -273,14 +303,14 @@ def seed():
         ChatMessage(
             user_id=users[0].id,
             role="user",
-            content="I'd like to discuss my rent increase. It seems unreasonable.",
+            content="I'd like to discuss my rent increase. It seems quite high compared to last year.",
             negotiation_id="neg-001",
             created_at=now - timedelta(hours=2),
         ),
         ChatMessage(
             user_id=users[0].id,
             role="assistant",
-            content="Your rent adjustment reflects current market conditions and your social credit standing of 620. Citizens with scores above 750 qualify for a 5% reduction. I suggest improving your compliance metrics. You have 2 negotiation credits remaining this cycle.",
+            content="Thank you for reaching out, Alex. Your rent adjustment reflects current market conditions in Midtown East and your Community Score of 620. Residents with scores above 750 may qualify for preferred rates. I'd be happy to discuss options for improving your standing.",
             negotiation_id="neg-001",
             created_at=now - timedelta(hours=2, minutes=-1),
         ),
@@ -294,82 +324,12 @@ def seed():
         ChatMessage(
             user_id=users[0].id,
             role="assistant",
-            content="Recommended actions: (1) Settle outstanding Klarna balance of $374.98. (2) Maintain noise levels below threshold for 14 consecutive days. (3) Participate in the voluntary surveillance opt-in program for +50 credit points. Remember: compliance is comfort.",
+            content="Great question! Here are some steps: (1) Resolve your outstanding Klarna balance of $4,899.99. (2) Maintain noise levels within community guidelines for 14 consecutive days. (3) Enable all Smart Home features for enhanced community integration. Your participation helps build a better living environment for everyone.",
             negotiation_id="neg-001",
             created_at=now - timedelta(hours=1, minutes=-1),
         ),
     ]
     db.add_all(messages)
-
-    # ── Resource Metrics (for unit Pod-7X Alpha) ──────────
-    resources = [
-        ResourceMetric(
-            unit_id=units[0].id,
-            metric_type="oxygen",
-            current_value=94.2,
-            max_value=100.0,
-            status="normal",
-            trend="down",
-        ),
-        ResourceMetric(
-            unit_id=units[0].id,
-            metric_type="water",
-            current_value=67.0,
-            max_value=100.0,
-            status="warning",
-            trend="down",
-        ),
-        ResourceMetric(
-            unit_id=units[0].id,
-            metric_type="power",
-            current_value=82.5,
-            max_value=100.0,
-            status="normal",
-            trend="stable",
-        ),
-        ResourceMetric(
-            unit_id=units[0].id,
-            metric_type="noise",
-            current_value=42.0,
-            max_value=80.0,
-            status="normal",
-            trend="up",
-        ),
-        # Resources for Bunker-9 Delta (worse conditions)
-        ResourceMetric(
-            unit_id=units[3].id,
-            metric_type="oxygen",
-            current_value=72.3,
-            max_value=100.0,
-            status="critical",
-            trend="down",
-        ),
-        ResourceMetric(
-            unit_id=units[3].id,
-            metric_type="water",
-            current_value=45.0,
-            max_value=100.0,
-            status="critical",
-            trend="down",
-        ),
-        ResourceMetric(
-            unit_id=units[3].id,
-            metric_type="power",
-            current_value=58.0,
-            max_value=100.0,
-            status="warning",
-            trend="stable",
-        ),
-        ResourceMetric(
-            unit_id=units[3].id,
-            metric_type="noise",
-            current_value=71.0,
-            max_value=80.0,
-            status="warning",
-            trend="up",
-        ),
-    ]
-    db.add_all(resources)
 
     # ── Simulation State ─────────────────────────────────
     sim_state = SimulationState(
@@ -379,56 +339,56 @@ def seed():
     )
     db.add(sim_state)
 
-    # ── Notifications ────────────────────────────────────
+    # ── Notifications (corporate tone) ────────────────────
     notifications = [
-        # Notifications for CIT-7291 (users[0])
+        # For RES-7291 (users[0])
         Notification(
             user_id=users[0].id,
-            title="Breathing Anomaly Detected",
-            message="Your breathing patterns were flagged at 03:47 AM. Compliance officers have been notified.",
+            title="Payment Processed",
+            message="Your rent payment has been processed. Thank you for being a valued resident.",
+            category="general",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Community Score Update",
+            message="Your Community Score has been updated based on recent activity. View details in your dashboard.",
+            category="warning",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Noise Advisory",
+            message="Noise levels in your unit exceeded community guidelines at 3:47 AM. A courtesy reminder has been logged.",
             category="violation",
         ),
         Notification(
             user_id=users[0].id,
-            title="Rent Adjustment Notice",
-            message="Rent increase of 8.3% approved effective next cycle. This is non-negotiable.",
-            category="warning",
-        ),
-        Notification(
-            user_id=users[0].id,
-            title="Neighbor Report Filed",
-            message="Neighbor CIT-0042 reported suspicious cooking aromas from your unit. Investigation pending.",
+            title="Visitor Logged",
+            message="Your recent visitor was logged by the Smart Home system. No action required at this time.",
             category="general",
-        ),
-        Notification(
-            user_id=users[0].id,
-            title="Social Credit Adjustment",
-            message="Your Social Credit Score decreased by 12 points — reason: excessive hallway loitering detected by corridor sensors.",
-            category="warning",
         ),
         Notification(
             user_id=users[0].id,
             title="Maintenance Scheduled",
-            message="Oxygen filter replacement scheduled for day 30 of current cycle. Temporary breathing difficulty may occur.",
+            message="A maintenance request has been received. Our team will respond within the standard service window.",
             category="maintenance",
         ),
         Notification(
             user_id=users[0].id,
-            title="Loyalty Reminder",
-            message="You have not praised the building management system in 14 days. Consider submitting a positive review.",
-            category="general",
+            title="Payment Reminder",
+            message="We noticed your payment was 3 days late. A small convenience fee has been applied to help you stay on track.",
+            category="warning",
         ),
-        # Notifications for CIT-0042 (users[1])
+        # For RES-0042 (users[1])
         Notification(
             user_id=users[1].id,
-            title="Eviction Warning",
-            message="Your payment history has triggered an automated eviction review. Remain compliant.",
+            title="Lease Review",
+            message="Your lease renewal assessment has been automatically initiated. We look forward to continuing our partnership.",
             category="warning",
         ),
         Notification(
             user_id=users[1].id,
-            title="Unit Inspection",
-            message="Mandatory unit cleanliness inspection scheduled. Non-compliance will result in social credit deduction.",
+            title="Community Guidelines",
+            message="A reminder that quiet hours are 10 PM – 7 AM. Our noise monitoring system helps ensure a comfortable environment for everyone.",
             category="violation",
         ),
     ]
@@ -445,14 +405,13 @@ def seed():
     print(f"  Markets:        {len(markets)}")
     print(f"  Bets:           {len(bets)}")
     print(f"  Messages:       {len(messages)}")
-    print(f"  Resources:      {len(resources)}")
     print(f"  Notifications:  {len(notifications)}")
     print(f"  SimulationState: 1")
     print()
     print("Test credentials:")
-    print("  CIT-7291 / citizen123  (Silver tier, warning status)")
-    print("  CIT-0042 / citizen123  (Bronze tier, probation)")
-    print("  CIT-9999 / admin       (Platinum tier, admin)")
+    print("  RES-7291 / citizen123  (Plus tier, warning status)")
+    print("  RES-0042 / citizen123  (Standard tier, probation)")
+    print("  RES-9999 / admin       (Elite tier, admin)")
 
 
 if __name__ == "__main__":

@@ -26,14 +26,19 @@ export interface Unit {
   id: number;
   name: string;
   sector: string;
-  level: number;
-  weekly_rent_credits: number;
   monthly_rent_usd: number;
-  radiation_level: number;
-  altitude: number;
-  smart_lock_status: "locked" | "unlocked" | "override";
-  oxygen_quality: number;
-  image_url?: string;
+  sqft: number;
+  bedrooms: number;
+  bathrooms: number;
+  floor: number;
+  pet_policy: string;
+  parking: string;
+  laundry: string;
+  year_built: number;
+  smart_home: boolean;
+  noise_monitoring: boolean;
+  community_score_required: number;
+  image_url: string | null;
   is_available: boolean;
 }
 
@@ -95,24 +100,35 @@ export interface ChatMessage {
   created_at: string;
 }
 
-// ---- Resources ----
-export interface ResourceMetric {
+// ---- Notifications ----
+export interface Notification {
   id: number;
-  unit_id: number;
-  metric_type: "oxygen" | "water" | "power" | "noise";
-  current_value: number;
-  max_value: number;
-  status: "normal" | "warning" | "critical";
-  trend: "up" | "down" | "stable";
+  user_id: number;
+  title: string;
+  message: string;
+  category: string;
+  is_read: boolean;
+  created_at: string;
 }
 
 // ---- Dashboard ----
 export interface DashboardData {
   user: User;
   unit: Unit | null;
-  resources: ResourceMetric[];
   recent_payments: Payment[];
   klarna_debts: KlarnaDebt[];
   markets: Market[];
+  notifications: Notification[];
   eviction_status: EvictionStatus;
+  gentrification_index: number;
+  credit_score: number;
+  interest_rate: number;
 }
+
+// Tier display names
+export const TIER_LABELS: Record<string, string> = {
+  bronze: "Standard",
+  silver: "Plus",
+  gold: "Premium",
+  platinum: "Elite",
+};
