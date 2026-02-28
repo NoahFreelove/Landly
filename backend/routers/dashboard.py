@@ -18,6 +18,20 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
     overdue = db.query(Payment).filter(Payment.user_id == user.id, Payment.status == "overdue").all()
     total_overdue = sum(p.amount + p.accrued_interest for p in overdue)
 
+    # Debt breakdown: query all pending/overdue payments (not limited to 10)
+    pending_payments = db.query(Payment).filter(
+        Payment.user_id == user.id,
+        Payment.status.in_(["pending", "overdue"])
+    ).all()
+    rent_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "rent")
+    late_fee_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "late_fee")
+    interest_total = sum(p.accrued_interest for p in pending_payments)
+    klarna_remaining = sum(
+        (d.total_amount / d.installments) * (d.installments - d.installments_paid)
+        for d in klarna_debts if d.status == "active"
+    )
+    total_debt = sum(p.amount + p.accrued_interest for p in pending_payments) + klarna_remaining
+
     eviction_status = {
         "is_pending": user.status == "eviction_pending",
         "deadline": None,
@@ -40,5 +54,12 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
         "eviction_status": eviction_status,
         "gentrification_index": round(gentrification_index, 1),
         "credit_score": 300 + int(user.social_credit_score * 0.55),
-        "interest_rate": 5.5 + max(0, (700 - user.social_credit_score) * 0.02)
+        "interest_rate": 5.5 + max(0, (700 - user.social_credit_score) * 0.02),
+        "total_debt": round(total_debt, 2),
+        "debt_breakdown": {
+            "rent": round(rent_total, 2),
+            "late_fees": round(late_fee_total, 2),
+            "klarna": round(klarna_remaining, 2),
+            "interest": round(interest_total, 2),
+        }
     }
