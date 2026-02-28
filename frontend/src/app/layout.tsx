@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/lib/auth";
+import { StyletronRegistry } from "@/lib/styletron";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="antialiased min-h-screen bg-surface-page text-zinc-100">
-        <AuthProvider>{children}</AuthProvider>
+        <StyletronRegistry>
+          <AuthProvider>{children}</AuthProvider>
+        </StyletronRegistry>
       </body>
     </html>
   );
