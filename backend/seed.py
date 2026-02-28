@@ -8,6 +8,7 @@ from database import engine, SessionLocal, Base
 from models import (
     User, Unit, Payment, KlarnaDebt,
     Market, MarketBet, ChatMessage, ResourceMetric,
+    SimulationState, Notification, TenantRating,
 )
 
 
@@ -370,18 +371,83 @@ def seed():
     ]
     db.add_all(resources)
 
+    # ── Simulation State ─────────────────────────────────
+    sim_state = SimulationState(
+        id=1,
+        current_date=now.date(),
+        day_number=1,
+    )
+    db.add(sim_state)
+
+    # ── Notifications ────────────────────────────────────
+    notifications = [
+        # Notifications for CIT-7291 (users[0])
+        Notification(
+            user_id=users[0].id,
+            title="Breathing Anomaly Detected",
+            message="Your breathing patterns were flagged at 03:47 AM. Compliance officers have been notified.",
+            category="violation",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Rent Adjustment Notice",
+            message="Rent increase of 8.3% approved effective next cycle. This is non-negotiable.",
+            category="warning",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Neighbor Report Filed",
+            message="Neighbor CIT-0042 reported suspicious cooking aromas from your unit. Investigation pending.",
+            category="general",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Social Credit Adjustment",
+            message="Your Social Credit Score decreased by 12 points — reason: excessive hallway loitering detected by corridor sensors.",
+            category="warning",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Maintenance Scheduled",
+            message="Oxygen filter replacement scheduled for day 30 of current cycle. Temporary breathing difficulty may occur.",
+            category="maintenance",
+        ),
+        Notification(
+            user_id=users[0].id,
+            title="Loyalty Reminder",
+            message="You have not praised the building management system in 14 days. Consider submitting a positive review.",
+            category="general",
+        ),
+        # Notifications for CIT-0042 (users[1])
+        Notification(
+            user_id=users[1].id,
+            title="Eviction Warning",
+            message="Your payment history has triggered an automated eviction review. Remain compliant.",
+            category="warning",
+        ),
+        Notification(
+            user_id=users[1].id,
+            title="Unit Inspection",
+            message="Mandatory unit cleanliness inspection scheduled. Non-compliance will result in social credit deduction.",
+            category="violation",
+        ),
+    ]
+    db.add_all(notifications)
+
     db.commit()
     db.close()
 
     print("Database seeded successfully.")
-    print(f"  Users:     {len(users)}")
-    print(f"  Units:     {len(units)}")
-    print(f"  Payments:  {len(payments)}")
-    print(f"  Klarna:    {len(klarna)}")
-    print(f"  Markets:   {len(markets)}")
-    print(f"  Bets:      {len(bets)}")
-    print(f"  Messages:  {len(messages)}")
-    print(f"  Resources: {len(resources)}")
+    print(f"  Users:          {len(users)}")
+    print(f"  Units:          {len(units)}")
+    print(f"  Payments:       {len(payments)}")
+    print(f"  Klarna:         {len(klarna)}")
+    print(f"  Markets:        {len(markets)}")
+    print(f"  Bets:           {len(bets)}")
+    print(f"  Messages:       {len(messages)}")
+    print(f"  Resources:      {len(resources)}")
+    print(f"  Notifications:  {len(notifications)}")
+    print(f"  SimulationState: 1")
     print()
     print("Test credentials:")
     print("  CIT-7291 / citizen123  (Silver tier, warning status)")

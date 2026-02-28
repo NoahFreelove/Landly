@@ -4,6 +4,9 @@ from models.payment import Payment, KlarnaDebt
 from models.market import Market, MarketBet
 from models.chat import ChatMessage
 from models.resource import ResourceMetric
+from models.simulation import SimulationState
+from models.notification import Notification
+from models.rating import TenantRating
 
 __all__ = [
     "User",
@@ -14,4 +17,7 @@ __all__ = [
     "MarketBet",
     "ChatMessage",
     "ResourceMetric",
+    "SimulationState",
+    "Notification",
+    "TenantRating",
 ]
