@@ -84,7 +84,6 @@ export default function KlarnaCheckout({
 
   if (!isOpen || !unit) return null;
 
-  const monthlyPayment = unit.monthly_rent_usd / 1; // Rent is the base
   const installmentPayment = (
     (unit.monthly_rent_usd * selectedPlan * 1.35) /
     selectedPlan
