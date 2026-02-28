@@ -56,3 +56,6 @@ Thumbs.db
 frontend/coverage/
 .pytest_cache/
 backend/.pytest_cache/
+
+# Corporate Art
+Flat\ Assets/*

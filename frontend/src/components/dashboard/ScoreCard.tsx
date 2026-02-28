@@ -21,18 +21,6 @@ function getBarColor(color: string, value: number, max: number): string {
   return "bg-red-500";
 }
 
-function getTextColor(color: string, value: number, max: number): string {
-  if (color === "dynamic") {
-    const ratio = value / max;
-    if (ratio < 0.4) return "text-red-600";
-    if (ratio < 0.7) return "text-amber-600";
-    return "text-green-600";
-  }
-  if (color === "green") return "text-green-600";
-  if (color === "yellow") return "text-amber-600";
-  return "text-red-600";
-}
-
 export default function ScoreCard({
   title,
   value,
@@ -43,7 +31,6 @@ export default function ScoreCard({
 }: ScoreCardProps) {
   const percentage = Math.min((value / max) * 100, 100);
   const barColor = getBarColor(color, value, max);
-  const textColor = getTextColor(color, value, max);
 
   return (
     <div

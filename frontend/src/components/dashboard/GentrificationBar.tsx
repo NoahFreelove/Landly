@@ -40,7 +40,7 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
   }, [index]);
 
   return (
-    <div className="bg-surface-card border border-[#2b2839] rounded-lg p-5">
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
       {/* Header row */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
           >
             {index}
           </span>
-          <span className="text-xs text-zinc-500">/ 100</span>
+          <span className="text-xs text-gray-400">/ 100</span>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
           },
           BarContainer: {
             style: {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: '#f3f4f6',
               borderTopLeftRadius: '9999px',
               borderTopRightRadius: '9999px',
               borderBottomLeftRadius: '9999px',
@@ -117,7 +117,7 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
       />
 
       {/* Scale labels */}
-      <div className="flex justify-between mt-2 text-[9px] font-mono text-zinc-600">
+      <div className="flex justify-between mt-2 text-[9px] font-mono text-gray-400">
         <span>0 - Safe</span>
         <span>25</span>
         <span>50</span>

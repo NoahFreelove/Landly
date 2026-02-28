@@ -6,7 +6,7 @@ import {
   ModalBody,
   SIZE as MODAL_SIZE,
 } from "baseui/modal";
-import { Button, KIND, SIZE as BUTTON_SIZE } from "baseui/button";
+import { Button } from "baseui/button";
 
 interface UnitDetailModalProps {
   unit: Unit | null;

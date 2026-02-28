@@ -131,10 +131,10 @@ export default function PushToTalk({
           flex items-center justify-center select-none touch-none
           ${
             disabled
-              ? "border-zinc-700 bg-zinc-800/50 cursor-not-allowed opacity-40"
+              ? "border-gray-300 bg-gray-100 cursor-not-allowed opacity-40"
               : isActive
                 ? "border-accent-red bg-accent-red/20 shadow-[0_0_30px_rgba(239,68,68,0.3)] animate-[btn-pulse_0.8s_ease-in-out_infinite] scale-110"
-                : "border-primary/50 bg-surface-elevated hover:border-primary hover:shadow-[0_0_20px_rgba(50,17,212,0.3)] active:scale-95 cursor-pointer"
+                : "border-blue-300 bg-white hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] active:scale-95 cursor-pointer"
           }
         `}
         aria-label={isActive ? "Release to stop recording" : "Hold to speak"}
@@ -143,10 +143,10 @@ export default function PushToTalk({
         <span
           className={`text-2xl transition-colors duration-300 ${
             disabled
-              ? "text-zinc-600"
+              ? "text-gray-400"
               : isActive
                 ? "text-accent-red"
-                : "text-zinc-300"
+                : "text-gray-500"
           }`}
         >
           {disabled ? (
@@ -198,11 +198,11 @@ export default function PushToTalk({
             RECORDING... {formatDuration(duration)}
           </span>
         ) : disabled ? (
-          <span className="text-zinc-600">
+          <span className="text-gray-400">
             {state === "processing" ? "PROCESSING..." : "SPEAKING..."}
           </span>
         ) : (
-          <span className="text-zinc-500">HOLD TO SPEAK</span>
+          <span className="text-gray-500">HOLD TO SPEAK</span>
         )}
       </span>
 
