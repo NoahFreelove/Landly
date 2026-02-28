@@ -32,15 +32,25 @@ class PaymentRequest(BaseModel):
     payment_id: int
     amount: float
 
+class EvictionStatusResponse(BaseModel):
+    is_pending: bool
+    deadline: Optional[str] = None
+    reason: Optional[str] = None
+    amount_owed: float
+
+class DebtBreakdown(BaseModel):
+    rent: float
+    late_fees: float
+    klarna: float
+    interest: float
+
+class LumpSumRequest(BaseModel):
+    amount: float
+
 class PaymentSummaryResponse(BaseModel):
     total_owed: float
     next_due_date: Optional[datetime] = None
     overdue_count: int
     payments: list[PaymentResponse]
     klarna_debts: list[KlarnaDebtResponse]
-
-class EvictionStatusResponse(BaseModel):
-    is_pending: bool
-    deadline: Optional[str] = None
-    reason: Optional[str] = None
-    amount_owed: float
+    debt_breakdown: DebtBreakdown

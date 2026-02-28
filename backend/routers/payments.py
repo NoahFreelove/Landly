@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User, Payment, KlarnaDebt
-from schemas import PaymentRequest, PaymentSummaryResponse, PaymentResponse, KlarnaDebtResponse, EvictionStatusResponse
+from schemas import PaymentRequest, PaymentSummaryResponse, PaymentResponse, KlarnaDebtResponse, EvictionStatusResponse, DebtBreakdown, LumpSumRequest
 from services.auth import get_current_user
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
@@ -19,12 +19,23 @@ def payment_summary(user: User = Depends(get_current_user), db: Session = Depend
     overdue = [p for p in payments if p.status == "overdue"]
     next_due = min((p.due_date for p in pending_payments), default=None)
 
+    rent_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "rent")
+    late_fee_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "late_fee")
+    interest_total = sum(p.accrued_interest for p in pending_payments)
+    klarna_total = sum((d.total_amount / d.installments) * (d.installments - d.installments_paid) for d in klarna if d.status == "active")
+
     return PaymentSummaryResponse(
         total_owed=round(total_owed, 2),
         next_due_date=next_due,
         overdue_count=len(overdue),
         payments=[PaymentResponse.model_validate(p) for p in payments],
-        klarna_debts=[KlarnaDebtResponse.model_validate(d) for d in klarna]
+        klarna_debts=[KlarnaDebtResponse.model_validate(d) for d in klarna],
+        debt_breakdown=DebtBreakdown(
+            rent=round(rent_total, 2),
+            late_fees=round(late_fee_total, 2),
+            klarna=round(klarna_total, 2),
+            interest=round(interest_total, 2)
+        )
     )
 
 @router.post("/pay")
