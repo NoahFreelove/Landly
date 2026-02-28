@@ -77,7 +77,7 @@ export default function BetModal({
       }, 1500);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Bet placement failed. The system remembers."
+        err instanceof Error ? err.message : "Position placement failed. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -103,11 +103,11 @@ export default function BetModal({
         },
         Dialog: {
           style: {
-            backgroundColor: '#1d1c27',
-            borderTopColor: '#2b2839',
-            borderRightColor: '#2b2839',
-            borderBottomColor: '#2b2839',
-            borderLeftColor: '#2b2839',
+            backgroundColor: '#ffffff',
+            borderTopColor: '#e5e7eb',
+            borderRightColor: '#e5e7eb',
+            borderBottomColor: '#e5e7eb',
+            borderLeftColor: '#e5e7eb',
             borderTopWidth: '1px',
             borderRightWidth: '1px',
             borderBottomWidth: '1px',
@@ -124,7 +124,7 @@ export default function BetModal({
             width: '100%',
             overflow: 'hidden',
             padding: '0',
-            boxShadow: '0 25px 50px -12px rgba(50, 17, 212, 0.1)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
           },
         },
         DialogContainer: {
@@ -142,12 +142,12 @@ export default function BetModal({
       <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Confirmation overlay */}
         {showConfirmation && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-surface-card/95 backdrop-blur-sm">
-            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/20">
-              <span className="text-3xl text-accent-green">{"\u2713"}</span>
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
+              <span className="text-3xl text-green-500">{"\u2713"}</span>
             </div>
-            <p className="text-lg font-bold text-white">Bet Confirmed</p>
-            <p className="text-sm text-zinc-400">
+            <p className="text-lg font-bold text-gray-900">Position Confirmed</p>
+            <p className="text-sm text-gray-500">
               {parsedAmount.toFixed(2)} LDLY on{" "}
               {position.toUpperCase()}
             </p>
@@ -155,19 +155,19 @@ export default function BetModal({
         )}
 
         {/* Header */}
-        <div className="border-b border-[#2b2839] p-5">
+        <div className="border-b border-gray-200 p-5">
           <div className="flex items-center justify-between">
-            <p className="label-tracked text-[10px] text-zinc-500">
-              Place Prediction
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+              Take Position
             </p>
             <button
               onClick={() => !isSubmitting && onClose()}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
             >
               {"\u2715"}
             </button>
           </div>
-          <h2 className="mt-2 text-base font-bold leading-snug text-white">
+          <h2 className="mt-2 text-base font-bold leading-snug text-gray-900">
             {market.question}
           </h2>
         </div>
@@ -175,17 +175,17 @@ export default function BetModal({
         {/* Body */}
         <div className="space-y-5 p-5">
           {/* Current odds */}
-          <div className="flex items-center justify-center gap-4 rounded-lg bg-white/[0.03] px-4 py-3">
+          <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-50 px-4 py-3">
             <div className="text-center">
-              <p className="text-xs font-bold text-accent-green">YES</p>
-              <p className="text-xl font-bold tabular-nums text-green-300">
+              <p className="text-xs font-bold text-green-600">YES</p>
+              <p className="text-xl font-bold tabular-nums text-green-600">
                 {yesPercent}%
               </p>
             </div>
-            <div className="h-8 w-px bg-zinc-700" />
+            <div className="h-8 w-px bg-gray-200" />
             <div className="text-center">
-              <p className="text-xs font-bold text-red-400">NO</p>
-              <p className="text-xl font-bold tabular-nums text-red-300">
+              <p className="text-xs font-bold text-red-500">NO</p>
+              <p className="text-xl font-bold tabular-nums text-red-500">
                 {noPercent}%
               </p>
             </div>
@@ -193,7 +193,7 @@ export default function BetModal({
 
           {/* Position selector */}
           <div>
-            <p className="mb-2 text-xs font-medium text-zinc-400">
+            <p className="mb-2 text-xs font-medium text-gray-500">
               Your Position
             </p>
             <div className="flex gap-2">
@@ -224,24 +224,24 @@ export default function BetModal({
                       fontSize: '0.875rem',
                       ...(position === "yes"
                         ? {
-                            borderTopColor: '#00cc66',
-                            borderRightColor: '#00cc66',
-                            borderBottomColor: '#00cc66',
-                            borderLeftColor: '#00cc66',
-                            backgroundColor: 'rgba(0, 204, 102, 0.15)',
-                            color: '#00cc66',
+                            borderTopColor: '#16a34a',
+                            borderRightColor: '#16a34a',
+                            borderBottomColor: '#16a34a',
+                            borderLeftColor: '#16a34a',
+                            backgroundColor: '#f0fdf4',
+                            color: '#16a34a',
                           }
                         : {
-                            borderTopColor: '#3f3f46',
-                            borderRightColor: '#3f3f46',
-                            borderBottomColor: '#3f3f46',
-                            borderLeftColor: '#3f3f46',
-                            backgroundColor: 'transparent',
-                            color: '#71717a',
+                            borderTopColor: '#e5e7eb',
+                            borderRightColor: '#e5e7eb',
+                            borderBottomColor: '#e5e7eb',
+                            borderLeftColor: '#e5e7eb',
+                            backgroundColor: '#ffffff',
+                            color: '#9ca3af',
                           }),
                       ':hover': position === "yes"
-                        ? { backgroundColor: 'rgba(0, 204, 102, 0.15)' }
-                        : { borderTopColor: '#52525b', borderRightColor: '#52525b', borderBottomColor: '#52525b', borderLeftColor: '#52525b', color: '#a1a1aa' },
+                        ? { backgroundColor: '#f0fdf4' }
+                        : { borderTopColor: '#d1d5db', borderRightColor: '#d1d5db', borderBottomColor: '#d1d5db', borderLeftColor: '#d1d5db', color: '#6b7280' },
                     },
                   },
                 }}
@@ -280,20 +280,20 @@ export default function BetModal({
                             borderRightColor: '#ef4444',
                             borderBottomColor: '#ef4444',
                             borderLeftColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                            color: '#f87171',
+                            backgroundColor: '#fef2f2',
+                            color: '#ef4444',
                           }
                         : {
-                            borderTopColor: '#3f3f46',
-                            borderRightColor: '#3f3f46',
-                            borderBottomColor: '#3f3f46',
-                            borderLeftColor: '#3f3f46',
-                            backgroundColor: 'transparent',
-                            color: '#71717a',
+                            borderTopColor: '#e5e7eb',
+                            borderRightColor: '#e5e7eb',
+                            borderBottomColor: '#e5e7eb',
+                            borderLeftColor: '#e5e7eb',
+                            backgroundColor: '#ffffff',
+                            color: '#9ca3af',
                           }),
                       ':hover': position === "no"
-                        ? { backgroundColor: 'rgba(239, 68, 68, 0.15)' }
-                        : { borderTopColor: '#52525b', borderRightColor: '#52525b', borderBottomColor: '#52525b', borderLeftColor: '#52525b', color: '#a1a1aa' },
+                        ? { backgroundColor: '#fef2f2' }
+                        : { borderTopColor: '#d1d5db', borderRightColor: '#d1d5db', borderBottomColor: '#d1d5db', borderLeftColor: '#d1d5db', color: '#6b7280' },
                     },
                   },
                 }}
@@ -306,8 +306,8 @@ export default function BetModal({
 
           {/* Amount input */}
           <div>
-            <label className="mb-2 block text-xs font-medium text-zinc-400">
-              Amount (LDLY)
+            <label className="mb-2 block text-xs font-medium text-gray-500">
+              Position Amount (LDLY)
             </label>
             <Input
               type="number"
@@ -320,16 +320,16 @@ export default function BetModal({
               }}
               placeholder="0.00"
               endEnhancer={() => (
-                <span className="text-sm font-semibold text-zinc-500">LDLY</span>
+                <span className="text-sm font-semibold text-gray-400">LDLY</span>
               )}
               overrides={{
                 Root: {
                   style: {
-                    backgroundColor: '#131022',
-                    borderTopColor: '#3f3f46',
-                    borderRightColor: '#3f3f46',
-                    borderBottomColor: '#3f3f46',
-                    borderLeftColor: '#3f3f46',
+                    backgroundColor: '#ffffff',
+                    borderTopColor: '#e5e7eb',
+                    borderRightColor: '#e5e7eb',
+                    borderBottomColor: '#e5e7eb',
+                    borderLeftColor: '#e5e7eb',
                     borderTopWidth: '1px',
                     borderRightWidth: '1px',
                     borderBottomWidth: '1px',
@@ -346,17 +346,17 @@ export default function BetModal({
                 },
                 Input: {
                   style: {
-                    color: '#ffffff',
-                    backgroundColor: '#131022',
+                    color: '#111827',
+                    backgroundColor: '#ffffff',
                     fontSize: '1.125rem',
                     fontWeight: 700,
                     fontVariantNumeric: 'tabular-nums',
-                    '::placeholder': { color: '#52525b' },
+                    '::placeholder': { color: '#d1d5db' },
                   },
                 },
                 InputContainer: {
                   style: {
-                    backgroundColor: '#131022',
+                    backgroundColor: '#ffffff',
                   },
                 },
               }}
@@ -384,20 +384,21 @@ export default function BetModal({
                         borderRightStyle: 'solid',
                         borderBottomStyle: 'solid',
                         borderLeftStyle: 'solid',
-                        borderTopColor: '#3f3f46',
-                        borderRightColor: '#3f3f46',
-                        borderBottomColor: '#3f3f46',
-                        borderLeftColor: '#3f3f46',
-                        backgroundColor: 'transparent',
-                        color: '#a1a1aa',
+                        borderTopColor: '#e5e7eb',
+                        borderRightColor: '#e5e7eb',
+                        borderBottomColor: '#e5e7eb',
+                        borderLeftColor: '#e5e7eb',
+                        backgroundColor: '#ffffff',
+                        color: '#6b7280',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         ':hover': {
-                          borderTopColor: 'rgba(50, 17, 212, 0.5)',
-                          borderRightColor: 'rgba(50, 17, 212, 0.5)',
-                          borderBottomColor: 'rgba(50, 17, 212, 0.5)',
-                          borderLeftColor: 'rgba(50, 17, 212, 0.5)',
-                          color: '#ffffff',
+                          borderTopColor: '#3b82f6',
+                          borderRightColor: '#3b82f6',
+                          borderBottomColor: '#3b82f6',
+                          borderLeftColor: '#3b82f6',
+                          color: '#3b82f6',
+                          backgroundColor: '#eff6ff',
                         },
                       },
                     },
@@ -411,33 +412,33 @@ export default function BetModal({
 
           {/* Potential payout calculation */}
           {parsedAmount > 0 && (
-            <div className="rounded-lg border border-zinc-700/50 bg-white/[0.02] p-3">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>Shares</span>
-                <span className="font-mono text-zinc-300">
+                <span className="font-mono text-gray-900">
                   {shares.toFixed(2)}
                 </span>
               </div>
-              <div className="mt-1 flex items-center justify-between text-xs text-zinc-400">
+              <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
                 <span>Avg Price</span>
-                <span className="font-mono text-zinc-300">
+                <span className="font-mono text-gray-900">
                   {(price * 100).toFixed(0)}% ({price.toFixed(2)} LDLY)
                 </span>
               </div>
-              <div className="my-2 border-t border-zinc-700/50" />
+              <div className="my-2 border-t border-gray-200" />
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">
+                <span className="text-xs font-medium text-gray-500">
                   Potential Payout
                 </span>
-                <span className="text-base font-bold text-accent-green">
+                <span className="text-base font-bold text-green-600">
                   {potentialPayout.toFixed(2)} LDLY
                 </span>
               </div>
               <div className="mt-0.5 flex items-center justify-between">
-                <span className="text-[10px] text-zinc-500">Profit</span>
+                <span className="text-[10px] text-gray-400">Profit</span>
                 <span
                   className={`text-xs font-bold ${
-                    profit > 0 ? "text-accent-green" : "text-red-400"
+                    profit > 0 ? "text-green-600" : "text-red-500"
                   }`}
                 >
                   {profit > 0 ? "+" : ""}
@@ -447,14 +448,14 @@ export default function BetModal({
             </div>
           )}
 
-          {/* Warning */}
-          <p className="text-center text-[10px] font-medium uppercase tracking-wider text-zinc-600">
-            All bets are final. The house always wins.
+          {/* Disclaimer */}
+          <p className="text-center text-[10px] font-medium uppercase tracking-wider text-gray-400">
+            All positions are final. Past performance is not indicative of future results.
           </p>
 
           {/* Error display */}
           {error && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
               {error}
             </div>
           )}
@@ -468,7 +469,7 @@ export default function BetModal({
               BaseButton: {
                 style: {
                   width: '100%',
-                  backgroundColor: '#3211d4',
+                  backgroundColor: '#3b82f6',
                   paddingTop: '0.875rem',
                   paddingBottom: '0.875rem',
                   borderTopLeftRadius: '0.5rem',
@@ -480,10 +481,10 @@ export default function BetModal({
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   color: '#ffffff',
-                  boxShadow: '0 10px 15px -3px rgba(50, 17, 212, 0.25)',
+                  boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.2)',
                   ':hover': {
-                    backgroundColor: '#2a0eb3',
-                    boxShadow: '0 20px 25px -5px rgba(50, 17, 212, 0.3)',
+                    backgroundColor: '#2563eb',
+                    boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.25)',
                   },
                   ':disabled': {
                     opacity: 0.5,
@@ -494,7 +495,7 @@ export default function BetModal({
               },
             }}
           >
-            {isSubmitting ? "Processing..." : "Confirm Bet"}
+            {isSubmitting ? "Processing..." : "Confirm Position"}
           </Button>
         </div>
       </ModalBody>

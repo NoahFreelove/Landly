@@ -44,49 +44,49 @@ export default function WalletWidget() {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border border-[#2b2839] bg-surface-card p-5 transition-all duration-300 ${
-        flash ? "ring-2 ring-accent-green/50" : ""
+      className={`relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 transition-all duration-300 ${
+        flash ? "ring-2 ring-blue-300" : ""
       }`}
     >
       {/* Decorative background glow */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-accent-green/5 blur-2xl" />
+      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-blue-50 blur-2xl" />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Diamond / ETH-style icon */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-green/10 text-accent-green">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500">
             <span className="text-xl font-bold leading-none">{"\u25C6"}</span>
           </div>
           <div>
-            <p className="label-tracked text-[10px] text-zinc-500">
-              Crypto Wallet
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+              Wallet
             </p>
-            <p className="text-xs text-zinc-500">Landly Token (LDLY)</p>
+            <p className="text-xs text-gray-500">Landly Token (LDLY)</p>
           </div>
         </div>
 
         <div className="text-right">
           <p
             className={`text-2xl font-bold tabular-nums tracking-tight transition-colors duration-300 ${
-              flash ? "text-accent-green" : "text-white"
+              flash ? "text-blue-500" : "text-gray-900"
             }`}
           >
             {balance.toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
-            <span className="ml-1.5 text-sm font-semibold text-zinc-500">
+            <span className="ml-1.5 text-sm font-semibold text-gray-400">
               LDLY
             </span>
           </p>
-          <p className="text-[10px] font-mono text-zinc-600">
+          <p className="text-[10px] font-mono text-gray-400">
             {"\u2248"} ${(balance * 0.0042).toFixed(2)} USD
           </p>
         </div>
       </div>
 
       {/* Thin accent line at bottom */}
-      <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-accent-green/30 to-transparent" />
+      <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
     </div>
   );
 }

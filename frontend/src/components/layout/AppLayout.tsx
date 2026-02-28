@@ -18,11 +18,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-page">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="space-y-4 text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary-light border-t-transparent" />
-          <p className="label-tracked text-zinc-500">
-            Verifying citizen credentials...
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+          <p className="text-sm text-gray-500">
+            Loading...
           </p>
         </div>
       </div>
@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-surface-page">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
       <main className="pl-[250px] pb-14">
         <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>

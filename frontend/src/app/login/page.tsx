@@ -30,7 +30,7 @@ export default function LoginPage() {
       await login(citizenId, password);
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Authentication failed. Compliance violation logged.");
+      setError(err.message || "Authentication failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -39,11 +39,11 @@ export default function LoginPage() {
   const inputOverrides = {
     Root: {
       style: {
-        backgroundColor: '#131022',
-        borderTopColor: '#2b2839',
-        borderRightColor: '#2b2839',
-        borderBottomColor: '#2b2839',
-        borderLeftColor: '#2b2839',
+        backgroundColor: '#ffffff',
+        borderTopColor: '#e5e7eb',
+        borderRightColor: '#e5e7eb',
+        borderBottomColor: '#e5e7eb',
+        borderLeftColor: '#e5e7eb',
         borderTopWidth: '1px',
         borderRightWidth: '1px',
         borderBottomWidth: '1px',
@@ -60,46 +60,50 @@ export default function LoginPage() {
     },
     Input: {
       style: {
-        color: '#e4e4e7',
-        backgroundColor: '#131022',
+        color: '#111827',
+        backgroundColor: '#ffffff',
         fontSize: '0.875rem',
-        '::placeholder': { color: '#52525b' },
+        '::placeholder': { color: '#9ca3af' },
       },
     },
     InputContainer: {
       style: {
-        backgroundColor: '#131022',
+        backgroundColor: '#ffffff',
       },
     },
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-page px-4">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            <span className="text-primary-light">LAND</span>LY
+            <span className="text-blue-500">LAND</span>
+            <span className="text-gray-900">LY</span>
           </h1>
-          <p className="label-tracked text-zinc-500">
-            Citizen Housing Management Portal
+          <p className="label-tracked text-gray-500">
+            Modern Living, Simplified
           </p>
         </div>
 
+        {/* Humaaan illustration */}
+        <img src="/illustrations/standing-1.svg" alt="" className="w-40 mx-auto mb-6 opacity-80" />
+
         {/* Login card */}
-        <div className="rounded-xl border border-[#2b2839] bg-surface-card p-8 shadow-lg shadow-black/20">
-          <h2 className="mb-6 text-center text-sm font-semibold uppercase tracking-[0.2em] text-zinc-300">
-            Citizen Authentication
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          <h2 className="mb-6 text-center text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">
+            Resident Login
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Citizen ID */}
+            {/* Resident ID */}
             <div className="space-y-1.5">
               <label
                 htmlFor="citizen_id"
-                className="label-tracked text-[10px] text-zinc-500"
+                className="label-tracked text-[10px] text-gray-500"
               >
-                Citizen ID
+                Resident ID
               </label>
               <Input
                 id="citizen_id"
@@ -108,7 +112,7 @@ export default function LoginPage() {
                 onChange={(e) => setCitizenId((e.target as HTMLInputElement).value)}
                 required
                 autoComplete="username"
-                placeholder="CZ-XXXX"
+                placeholder="RES-XXXX"
                 overrides={inputOverrides}
               />
             </div>
@@ -117,7 +121,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <label
                 htmlFor="password"
-                className="label-tracked text-[10px] text-zinc-500"
+                className="label-tracked text-[10px] text-gray-500"
               >
                 Password
               </label>
@@ -135,7 +139,7 @@ export default function LoginPage() {
 
             {/* Error */}
             {error && (
-              <div className="rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-xs text-accent-red">
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-600">
                 {error}
               </div>
             )}
@@ -149,7 +153,8 @@ export default function LoginPage() {
                 BaseButton: {
                   style: {
                     width: '100%',
-                    backgroundColor: '#3211d4',
+                    backgroundColor: '#3B82F6',
+                    color: '#FFFFFF',
                     borderTopLeftRadius: '0.5rem',
                     borderTopRightRadius: '0.5rem',
                     borderBottomLeftRadius: '0.5rem',
@@ -161,7 +166,7 @@ export default function LoginPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
                     ':hover': {
-                      backgroundColor: '#2a0eb3',
+                      backgroundColor: '#2563EB',
                     },
                     ':disabled': {
                       opacity: 0.5,
@@ -171,14 +176,14 @@ export default function LoginPage() {
                 },
               }}
             >
-              {isSubmitting ? "Verifying..." : "Authenticate"}
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </div>
 
         {/* Tagline */}
-        <p className="text-center text-xs text-zinc-600 tracking-wide">
-          Compliance is comfort.
+        <p className="text-center text-xs text-gray-400 tracking-wide">
+          Modern Living, Simplified.
         </p>
       </div>
     </main>

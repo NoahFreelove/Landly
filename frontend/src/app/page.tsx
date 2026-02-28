@@ -2,23 +2,28 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-surface-page px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
       <div className="text-center space-y-6">
+        <img
+          src="/illustrations/standing-2.svg"
+          alt=""
+          className="w-56 mx-auto mb-8 opacity-80"
+        />
         <h1 className="text-5xl font-bold tracking-tight">
-          <span className="text-primary-light">LAND</span>LY
+          <span className="text-blue-500">LAND</span>
+          <span className="text-gray-900">LY</span>
         </h1>
-        <p className="label-tracked text-zinc-500">
-          Citizen Housing Management Portal v2.4.1
+        <p className="text-sm uppercase tracking-wider text-gray-500">
+          Modern Living, Simplified
         </p>
-        <p className="text-zinc-400 max-w-md mx-auto">
+        <p className="text-gray-500 max-w-md mx-auto">
           Your AI-powered apartment management experience.
-          Compliance is comfort.
         </p>
         <Link
           href="/login"
-          className="inline-block mt-4 px-8 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors"
+          className="inline-block mt-4 px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-colors"
         >
-          Access Portal
+          Get Started
         </Link>
       </div>
     </main>

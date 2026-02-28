@@ -15,19 +15,10 @@ interface UnitDetailModalProps {
   onRent: (unit: Unit) => void;
 }
 
-function radiationLabel(level: number) {
-  if (level >= 7) return { text: "CRITICAL", color: "text-accent-red" };
-  if (level >= 4) return { text: "ELEVATED", color: "text-accent-yellow" };
-  return { text: "NOMINAL", color: "text-accent-green" };
-}
-
-function lockLabel(status: Unit["smart_lock_status"]) {
-  const map: Record<string, { text: string; color: string }> = {
-    locked: { text: "LOCKED", color: "text-accent-green" },
-    unlocked: { text: "UNLOCKED", color: "text-accent-yellow" },
-    override: { text: "OVERRIDE", color: "text-accent-red" },
-  };
-  return map[status] || map.locked;
+function bedroomLabel(bedrooms: number): string {
+  if (bedrooms === 0) return "Studio";
+  if (bedrooms === 1) return "1 Bed";
+  return `${bedrooms} Bed`;
 }
 
 export default function UnitDetailModal({
@@ -37,9 +28,6 @@ export default function UnitDetailModal({
   onRent,
 }: UnitDetailModalProps) {
   if (!unit) return null;
-
-  const rad = radiationLabel(unit.radiation_level);
-  const lock = lockLabel(unit.smart_lock_status);
 
   return (
     <Modal
@@ -54,11 +42,11 @@ export default function UnitDetailModal({
         },
         Dialog: {
           style: {
-            backgroundColor: '#1d1c27',
-            borderTopColor: '#2b2839',
-            borderRightColor: '#2b2839',
-            borderBottomColor: '#2b2839',
-            borderLeftColor: '#2b2839',
+            backgroundColor: '#FFFFFF',
+            borderTopColor: '#e5e7eb',
+            borderRightColor: '#e5e7eb',
+            borderBottomColor: '#e5e7eb',
+            borderLeftColor: '#e5e7eb',
             borderTopWidth: '1px',
             borderRightWidth: '1px',
             borderBottomWidth: '1px',
@@ -84,9 +72,9 @@ export default function UnitDetailModal({
         },
         Close: {
           style: {
-            color: '#a1a1aa',
+            color: '#9ca3af',
             ':hover': {
-              color: '#ffffff',
+              color: '#4b5563',
             },
           },
         },
@@ -94,67 +82,56 @@ export default function UnitDetailModal({
     >
       <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary-dark via-primary to-primary-light p-8 pb-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/60">
-            Unit Dossier
+        <div className="relative bg-gray-50 p-8 pb-6">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+            Apartment Details
           </p>
-          <h2 className="mt-1 text-3xl font-bold tracking-tight text-white">
+          <h2 className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
             {unit.name}
           </h2>
-          <p className="mt-1 text-sm text-white/70">
-            {unit.sector} &bull; Level {unit.level} &bull; Altitude{" "}
-            {unit.altitude}m
+          <p className="mt-1 text-sm text-gray-500">
+            {unit.sector} &bull; Floor {unit.floor} &bull; {unit.sqft.toLocaleString()} sqft
           </p>
 
           {/* Availability */}
           <div className="mt-4 flex items-center gap-2">
             <span
               className={`inline-block h-2.5 w-2.5 rounded-full ${
-                unit.is_available ? "bg-accent-green" : "bg-accent-red"
+                unit.is_available ? "bg-green-500" : "bg-red-500"
               }`}
             />
-            <span className="text-xs font-bold uppercase tracking-wider text-white">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
               {unit.is_available
-                ? "Available for Assignment"
+                ? "Available"
                 : "Currently Occupied"}
             </span>
           </div>
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-px bg-gray-200 sm:grid-cols-4">
           <StatCell label="Monthly Rent" value={`$${unit.monthly_rent_usd.toLocaleString()}`} sub="/mo" />
-          <StatCell label="Weekly Credits" value={`${unit.weekly_rent_credits}`} sub="CR" />
-          <StatCell
-            label="Radiation"
-            value={unit.radiation_level.toFixed(1)}
-            sub={rad.text}
-            valueColor={rad.color}
-          />
-          <StatCell
-            label="Oxygen Quality"
-            value={`${unit.oxygen_quality}%`}
-            sub={unit.oxygen_quality >= 80 ? "BREATHABLE" : "FILTERED"}
-            valueColor={unit.oxygen_quality >= 80 ? "text-accent-green" : "text-accent-yellow"}
-          />
-          <StatCell label="Sector" value={unit.sector} />
-          <StatCell label="Level" value={`${unit.level}`} />
-          <StatCell label="Altitude" value={`${unit.altitude}m`} />
-          <StatCell
-            label="Smart Lock"
-            value={lock.text}
-            valueColor={lock.color}
-          />
+          <StatCell label="Size" value={`${unit.sqft.toLocaleString()}`} sub="sqft" />
+          <StatCell label="Layout" value={bedroomLabel(unit.bedrooms)} sub={`${unit.bathrooms} Bath`} />
+          <StatCell label="Floor" value={`${unit.floor}`} />
+          <StatCell label="Pet Policy" value={unit.pet_policy === "none" ? "No Pets" : unit.pet_policy === "cats_only" ? "Cats Only" : unit.pet_policy === "dogs_only" ? "Dogs Only" : "Pets OK"} />
+          <StatCell label="Parking" value={unit.parking === "none" ? "None" : unit.parking === "garage" ? "Garage" : unit.parking === "street" ? "Street" : unit.parking} />
+          <StatCell label="Laundry" value={unit.laundry === "in_unit" ? "In-Unit" : unit.laundry === "in_building" ? "In-Building" : unit.laundry === "none" ? "None" : unit.laundry} />
+          <StatCell label="Year Built" value={`${unit.year_built}`} />
         </div>
 
         {/* Action area */}
         <div className="flex flex-col gap-3 p-6">
-          <p className="text-center text-xs text-zinc-500">
-            All units are subject to mandatory inspections. Rent is
-            non-negotiable and automatically deducted from your citizen account.
-            Failure to comply will result in social credit deductions and
-            potential reassignment.
-          </p>
+          <div className="flex flex-col gap-1 text-center">
+            <p className="text-xs text-gray-500">
+              This unit requires a minimum Community Score of {unit.community_score_required}.
+            </p>
+            {unit.smart_home && (
+              <p className="text-xs text-gray-500">
+                Smart Home monitoring included.
+              </p>
+            )}
+          </div>
           <Button
             onClick={() => onRent(unit)}
             disabled={!unit.is_available}
@@ -163,7 +140,7 @@ export default function UnitDetailModal({
                 style: {
                   width: '100%',
                   height: '3rem',
-                  backgroundColor: 'rgba(255, 176, 205, 0.1)',
+                  backgroundColor: 'rgba(255, 179, 199, 0.1)',
                   borderTopWidth: '1px',
                   borderRightWidth: '1px',
                   borderBottomWidth: '1px',
@@ -172,21 +149,20 @@ export default function UnitDetailModal({
                   borderRightStyle: 'solid',
                   borderBottomStyle: 'solid',
                   borderLeftStyle: 'solid',
-                  borderTopColor: 'rgba(255, 176, 205, 0.3)',
-                  borderRightColor: 'rgba(255, 176, 205, 0.3)',
-                  borderBottomColor: 'rgba(255, 176, 205, 0.3)',
-                  borderLeftColor: 'rgba(255, 176, 205, 0.3)',
+                  borderTopColor: 'rgba(255, 179, 199, 0.3)',
+                  borderRightColor: 'rgba(255, 179, 199, 0.3)',
+                  borderBottomColor: 'rgba(255, 179, 199, 0.3)',
+                  borderLeftColor: 'rgba(255, 179, 199, 0.3)',
                   borderTopLeftRadius: '0.75rem',
                   borderTopRightRadius: '0.75rem',
                   borderBottomLeftRadius: '0.75rem',
                   borderBottomRightRadius: '0.75rem',
-                  color: '#ffb0cd',
+                  color: '#FFB3C7',
                   fontWeight: 700,
-                  textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   fontSize: '1rem',
                   ':hover': {
-                    backgroundColor: 'rgba(255, 176, 205, 0.2)',
+                    backgroundColor: 'rgba(255, 179, 199, 0.2)',
                   },
                   ':disabled': {
                     opacity: 0.4,
@@ -196,7 +172,7 @@ export default function UnitDetailModal({
               },
             }}
           >
-            RENT WITH KLARNA
+            Apply with Klarna
           </Button>
         </div>
       </ModalBody>
@@ -208,7 +184,7 @@ function StatCell({
   label,
   value,
   sub,
-  valueColor = "text-white",
+  valueColor = "text-gray-900",
 }: {
   label: string;
   value: string;
@@ -216,14 +192,14 @@ function StatCell({
   valueColor?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 bg-surface-card p-4">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+    <div className="flex flex-col gap-1 bg-white p-4">
+      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
         {label}
       </span>
       <span className={`text-lg font-bold ${valueColor}`}>
         {value}
         {sub && (
-          <span className="ml-1 text-xs font-normal text-zinc-500">{sub}</span>
+          <span className="ml-1 text-xs font-normal text-gray-500">{sub}</span>
         )}
       </span>
     </div>

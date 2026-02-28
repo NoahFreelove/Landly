@@ -80,11 +80,11 @@ export default function MarketplacePage() {
       case "price-desc":
         result.sort((a, b) => b.monthly_rent_usd - a.monthly_rent_usd);
         break;
-      case "radiation":
-        result.sort((a, b) => b.radiation_level - a.radiation_level);
+      case "newest":
+        result.sort((a, b) => b.year_built - a.year_built);
         break;
-      case "oxygen":
-        result.sort((a, b) => b.oxygen_quality - a.oxygen_quality);
+      case "size":
+        result.sort((a, b) => b.sqft - a.sqft);
         break;
     }
 
@@ -114,15 +114,16 @@ export default function MarketplacePage() {
     <AppLayout>
       <div className="flex flex-col gap-8">
         {/* Page header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-bold tracking-tighter text-white md:text-5xl">
-            <span className="text-primary-light">Available</span> Life Pods
-          </h1>
-          <p className="max-w-2xl text-lg text-zinc-400">
-            Secure your standardized living unit today. Compliance is mandatory
-            for all citizens. Units subject to availability and social credit
-            standing.
-          </p>
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-bold tracking-tighter text-gray-900 md:text-5xl">
+              Available Apartments
+            </h1>
+            <p className="max-w-2xl text-lg text-gray-500">
+              Find your next home. Modern living starts here.
+            </p>
+          </div>
+          <img src="/illustrations/standing-3.svg" alt="" className="w-40 opacity-40" />
         </div>
 
         {/* Filters */}
@@ -130,8 +131,8 @@ export default function MarketplacePage() {
 
         {/* Results count */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-zinc-500">
-            <span className="font-bold text-white">{displayUnits.length}</span>{" "}
+          <p className="text-sm text-gray-500">
+            <span className="font-bold text-gray-900">{displayUnits.length}</span>{" "}
             units found
           </p>
           {filters.sector !== "all" && (
@@ -139,7 +140,7 @@ export default function MarketplacePage() {
               onClick={() =>
                 setFilters((f) => ({ ...f, sector: "all" }))
               }
-              className="text-xs font-bold uppercase tracking-wider text-primary-light hover:text-white transition-colors"
+              className="text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-gray-900 transition-colors"
             >
               Clear sector filter
             </button>
@@ -149,20 +150,20 @@ export default function MarketplacePage() {
         {/* Loading state */}
         {loading && (
           <div className="flex flex-col items-center justify-center gap-4 py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-light border-t-transparent" />
-            <p className="text-sm font-bold uppercase tracking-wider text-zinc-500">
-              Scanning available sectors...
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+            <p className="text-sm font-bold uppercase tracking-wider text-gray-500">
+              Loading available listings...
             </p>
           </div>
         )}
 
         {/* Error state */}
         {error && !loading && (
-          <div className="flex flex-col items-center gap-3 rounded-xl bg-accent-red/10 p-8 ring-1 ring-accent-red/20">
-            <p className="text-sm font-bold uppercase tracking-wider text-accent-red">
-              Sector Data Unavailable
+          <div className="flex flex-col items-center gap-3 rounded-xl bg-red-50 p-8 ring-1 ring-red-200">
+            <p className="text-sm font-bold uppercase tracking-wider text-red-600">
+              Unable to Load Listings
             </p>
-            <p className="text-xs text-zinc-400">{error}</p>
+            <p className="text-xs text-gray-500">{error}</p>
             <button
               onClick={() => {
                 if (token) {
@@ -173,9 +174,9 @@ export default function MarketplacePage() {
                     .finally(() => setLoading(false));
                 }
               }}
-              className="mt-2 rounded-lg bg-surface-elevated px-4 py-2 text-xs font-bold uppercase tracking-wider text-white ring-1 ring-border hover:bg-surface-card"
+              className="mt-2 rounded-lg bg-gray-50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-900 ring-1 ring-gray-200 hover:bg-gray-100"
             >
-              Retry Scan
+              Retry
             </button>
           </div>
         )}
@@ -183,11 +184,11 @@ export default function MarketplacePage() {
         {/* Empty state */}
         {!loading && !error && displayUnits.length === 0 && (
           <div className="flex flex-col items-center gap-3 py-20">
-            <p className="text-lg font-bold text-zinc-400">
+            <p className="text-lg font-bold text-gray-500">
               No units match your criteria
             </p>
-            <p className="text-sm text-zinc-600">
-              Adjust your filters or accept whatever the Authority assigns you.
+            <p className="text-sm text-gray-400">
+              Try adjusting your filters to see more results.
             </p>
           </div>
         )}
@@ -205,14 +206,10 @@ export default function MarketplacePage() {
           </div>
         )}
 
-        {/* Dystopian fine print */}
-        <div className="border-t border-border pt-6 text-center">
-          <p className="text-[10px] uppercase tracking-widest text-zinc-600">
-            All listings are final. Rental agreements are binding under Directive
-            7.4.2. Klarna financing subject to 35% APR. Social credit score
-            will be evaluated at point of application. The Authority reserves
-            the right to reassign, repossess, or revoke housing privileges at
-            any time without prior notice. Resistance is inadvisable.
+        {/* Footer fine print */}
+        <div className="border-t border-gray-200 pt-6 text-center">
+          <p className="text-[10px] uppercase tracking-widest text-gray-400">
+            All listings subject to Community Score verification. Smart Home features vary by unit.
           </p>
         </div>
       </div>

@@ -16,15 +16,15 @@ interface LeaderboardTableProps {
 }
 
 function getRiskTint(odds: number): string {
-  if (odds > 50) return "bg-red-500/10";
-  if (odds >= 20) return "bg-yellow-500/8";
-  return "bg-accent-green/5";
+  if (odds > 50) return "bg-red-50";
+  if (odds >= 20) return "bg-amber-50";
+  return "bg-green-50";
 }
 
 function getCreditColor(score: number): string {
-  if (score < 400) return "text-accent-red";
-  if (score <= 700) return "text-accent-yellow";
-  return "text-accent-green";
+  if (score < 400) return "text-red-500";
+  if (score <= 700) return "text-amber-500";
+  return "text-green-600";
 }
 
 function formatCurrency(amount: number): string {
@@ -40,65 +40,65 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
   return (
     <div className="space-y-6">
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-[#2b2839]">
+      <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-surface-elevated">
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
+            <tr className="bg-gray-50">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
                 Rank
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
-                Citizen ID
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
+                Resident ID
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
                 Name
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
                 Missed Payments
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
-                Social Credit
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
+                Community Score
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
-                Eviction Odds
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
+                Risk Score
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
                 Total Owed
               </th>
-              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">
+              <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
                 Action
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#2b2839]/50">
+          <tbody className="divide-y divide-gray-100">
             {entries.map((entry, index) => {
               const rank = index + 1;
               const isTopThree = rank <= 3;
               const isFirst = rank === 1;
               const riskTint = getRiskTint(entry.eviction_odds);
-              const rowBg = isTopThree ? "bg-red-500/10" : riskTint;
-              const stripe = !isTopThree && index % 2 === 1 ? "bg-white/[0.02]" : "";
+              const rowBg = isTopThree ? "bg-red-50" : riskTint;
+              const stripe = !isTopThree && index % 2 === 1 ? "bg-gray-50/50" : "";
 
               return (
                 <tr
                   key={entry.citizen_id}
-                  className={`${rowBg} ${stripe} transition-colors hover:bg-white/[0.06]`}
+                  className={`${rowBg} ${stripe} transition-colors hover:bg-gray-100`}
                 >
                   {/* Rank */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {isFirst && (
-                        <span className="text-lg text-accent-red" title="Highest eviction risk">
+                        <span className="text-lg text-red-500" title="Highest risk">
                           {"\u26A0"}
                         </span>
                       )}
                       <span
                         className={`font-mono ${
                           isFirst
-                            ? "text-xl font-black text-accent-red"
+                            ? "text-xl font-black text-red-500"
                             : isTopThree
                               ? "text-base font-bold text-red-400"
-                              : "text-sm font-medium text-zinc-400"
+                              : "text-sm font-medium text-gray-500"
                         }`}
                       >
                         #{rank}
@@ -106,11 +106,11 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                     </div>
                   </td>
 
-                  {/* Citizen ID */}
+                  {/* Resident ID */}
                   <td className="px-4 py-3">
                     <span
                       className={`font-mono ${
-                        isTopThree ? "font-bold text-white" : "text-zinc-300"
+                        isTopThree ? "font-bold text-gray-900" : "text-gray-500"
                       }`}
                     >
                       {entry.citizen_id}
@@ -122,10 +122,10 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                     <span
                       className={`${
                         isFirst
-                          ? "text-base font-black text-white"
+                          ? "text-base font-black text-gray-900"
                           : isTopThree
-                            ? "font-bold text-white"
-                            : "text-zinc-300"
+                            ? "font-bold text-gray-900"
+                            : "text-gray-500"
                       }`}
                     >
                       {entry.name}
@@ -136,14 +136,14 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   <td className="px-4 py-3">
                     <span
                       className={`font-mono ${
-                        isTopThree ? "font-bold text-white" : "text-zinc-300"
+                        isTopThree ? "font-bold text-gray-900" : "text-gray-500"
                       }`}
                     >
                       {entry.missed_payments}
                     </span>
                   </td>
 
-                  {/* Social Credit Score */}
+                  {/* Community Score */}
                   <td className="px-4 py-3">
                     <span
                       className={`font-mono font-semibold ${getCreditColor(
@@ -154,24 +154,24 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                     </span>
                   </td>
 
-                  {/* Eviction Odds */}
+                  {/* Risk Score */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-2 w-20 overflow-hidden rounded-full bg-white/10">
+                      <div className="relative h-2 w-20 overflow-hidden rounded-full bg-gray-200">
                         <div
                           className={`absolute inset-y-0 left-0 rounded-full transition-all ${
                             entry.eviction_odds > 50
-                              ? "bg-accent-red"
+                              ? "bg-red-400"
                               : entry.eviction_odds >= 20
-                                ? "bg-accent-yellow"
-                                : "bg-accent-green"
+                                ? "bg-amber-400"
+                                : "bg-green-400"
                           }`}
                           style={{ width: `${Math.min(entry.eviction_odds, 100)}%` }}
                         />
                       </div>
                       <span
                         className={`font-mono font-semibold ${
-                          isTopThree ? "text-white" : "text-zinc-300"
+                          isTopThree ? "text-gray-900" : "text-gray-500"
                         }`}
                       >
                         {entry.eviction_odds.toFixed(1)}%
@@ -183,7 +183,7 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   <td className="px-4 py-3">
                     <span
                       className={`font-mono ${
-                        isTopThree ? "font-bold text-white" : "text-zinc-300"
+                        isTopThree ? "font-bold text-gray-900" : "text-gray-500"
                       }`}
                     >
                       {formatCurrency(entry.total_owed)}
@@ -194,9 +194,9 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   <td className="px-4 py-3">
                     <Link
                       href="/markets"
-                      className="inline-flex items-center gap-1 rounded-md border border-accent-red/30 bg-accent-red/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-red transition-all hover:border-accent-red/60 hover:bg-accent-red/20"
+                      className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 transition-all hover:border-blue-300 hover:bg-blue-100"
                     >
-                      BET NOW
+                      View Market
                     </Link>
                   </td>
                 </tr>
@@ -207,25 +207,23 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
       </div>
 
       {/* Footer */}
-      <div className="rounded-xl border border-[#2b2839] bg-surface-card p-6 space-y-4">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 leading-relaxed">
-          DISCLAIMER: Eviction odds are calculated by the Landly Predictive
-          Compliance Engine. Accuracy is not guaranteed. Betting on human
-          suffering is encouraged by building management.
+      <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400 leading-relaxed">
+          Risk scores are calculated based on payment history, Community Score, and outstanding balance.
         </p>
 
-        <div className="flex items-center justify-between border-t border-[#2b2839] pt-4">
-          <span className="text-xs text-zinc-500">
-            <span className="font-mono font-semibold text-zinc-300">
+        <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+          <span className="text-xs text-gray-500">
+            <span className="font-mono font-semibold text-gray-900">
               {entries.length}
             </span>{" "}
-            tenants tracked
+            residents tracked
           </span>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-green" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
             </span>
             Updated in real-time
           </div>

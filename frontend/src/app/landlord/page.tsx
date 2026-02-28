@@ -11,10 +11,10 @@ type VoiceState = "idle" | "recording" | "processing" | "playing";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const STATUS_LABELS: Record<VoiceState, string> = {
-  idle: "AWAITING INPUT",
-  recording: "RECORDING",
-  processing: "PROCESSING",
-  playing: "SPEAKING",
+  idle: "Ready",
+  recording: "Listening...",
+  processing: "Processing...",
+  playing: "Speaking...",
 };
 
 export default function LandlordVoicePage() {
@@ -26,7 +26,7 @@ export default function LandlordVoicePage() {
   const handleRecordingComplete = useCallback(
     async (audioBlob: Blob) => {
       if (!token) {
-        setError("AUTHENTICATION REQUIRED. ACCESS DENIED.");
+        setError("Authentication required. Please sign in.");
         return;
       }
 
@@ -44,7 +44,7 @@ export default function LandlordVoicePage() {
         });
 
         if (!response.ok) {
-          throw new Error(`RESPONSE CODE ${response.status}`);
+          throw new Error(`Request failed (${response.status})`);
         }
 
         const audioResponse = await response.blob();
@@ -67,7 +67,7 @@ export default function LandlordVoicePage() {
         };
 
         audio.onerror = () => {
-          setError("AUDIO PLAYBACK FAILURE.");
+          setError("Audio playback failed.");
           setState("idle");
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
@@ -76,7 +76,7 @@ export default function LandlordVoicePage() {
         await audio.play();
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "UNKNOWN TRANSMISSION ERROR";
+          err instanceof Error ? err.message : "Something went wrong";
         setError(message);
         setState("idle");
       }
@@ -90,35 +90,33 @@ export default function LandlordVoicePage() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-surface-page flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden">
       {/* Ambient background gradient */}
       <div
         className={`absolute inset-0 transition-all duration-1000 pointer-events-none ${
           state === "idle"
-            ? "bg-[radial-gradient(ellipse_at_center,rgba(50,17,212,0.05)_0%,transparent_70%)]"
+            ? "bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100"
             : state === "recording"
-              ? "bg-[radial-gradient(ellipse_at_center,rgba(239,68,68,0.06)_0%,transparent_70%)]"
+              ? "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50"
               : state === "processing"
-                ? "bg-[radial-gradient(ellipse_at_center,rgba(88,53,245,0.06)_0%,transparent_70%)]"
-                : "bg-[radial-gradient(ellipse_at_center,rgba(0,204,102,0.05)_0%,transparent_70%)]"
+                ? "bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100"
+                : "bg-gradient-to-br from-emerald-50 via-blue-50 to-gray-50"
         }`}
       />
 
-      {/* Scan line overlay for dystopian feel */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
-        }}
+      {/* Decorative illustration */}
+      <img
+        src="/illustrations/standing-15.svg"
+        alt=""
+        className="absolute bottom-24 right-10 w-48 opacity-15 pointer-events-none"
       />
 
       {/* Top bar */}
-      <div className="relative z-10 flex items-start justify-between px-6 pt-6">
+      <div className="relative z-10 flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
         {/* Back button */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors group"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-700 bg-white/80 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors group"
         >
           <svg
             width="20"
@@ -134,24 +132,23 @@ export default function LandlordVoicePage() {
             <path d="M19 12H5" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          <span className="label-tracked">EXIT</span>
+          <span className="text-sm font-medium">Back</span>
         </Link>
 
         {/* Title & status - centered */}
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-          <h1 className="text-sm font-medium tracking-[0.3em] text-zinc-400 uppercase">
-            LANDLORD AI{" "}
-            <span className="text-zinc-600 text-xs font-normal">v2.4.1</span>
+          <h1 className="text-sm font-semibold tracking-wide text-gray-900">
+            Landly Assistant
           </h1>
           <p
-            className={`mt-1.5 label-tracked transition-colors duration-500 ${
+            className={`mt-1.5 text-xs font-medium transition-colors duration-500 ${
               state === "idle"
-                ? "text-zinc-600"
+                ? "text-gray-400"
                 : state === "recording"
-                  ? "text-accent-red/80"
+                  ? "text-blue-500"
                   : state === "processing"
-                    ? "text-primary-light/80"
-                    : "text-accent-green/80"
+                    ? "text-indigo-500"
+                    : "text-emerald-500"
             }`}
           >
             {STATUS_LABELS[state]}
@@ -170,7 +167,7 @@ export default function LandlordVoicePage() {
       {/* Error display */}
       {error && (
         <div className="relative z-10 flex justify-center -mt-8 mb-4">
-          <p className="label-tracked text-accent-red/70 max-w-xs text-center">
+          <p className="text-sm font-medium bg-red-50 text-red-600 border border-red-200 rounded-lg px-4 py-2 max-w-xs text-center">
             {error}
           </p>
         </div>

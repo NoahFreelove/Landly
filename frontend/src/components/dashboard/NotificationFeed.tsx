@@ -17,9 +17,9 @@ function categoryIcon(category: Notification["category"]) {
   switch (category) {
     case "warning":
       return (
-        <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
           <svg
-            className="w-4 h-4 text-amber-400"
+            className="w-4 h-4 text-amber-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -35,9 +35,9 @@ function categoryIcon(category: Notification["category"]) {
       );
     case "violation":
       return (
-        <div className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0">
           <svg
-            className="w-4 h-4 text-red-400"
+            className="w-4 h-4 text-red-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -53,9 +53,9 @@ function categoryIcon(category: Notification["category"]) {
       );
     case "maintenance":
       return (
-        <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
           <svg
-            className="w-4 h-4 text-blue-400"
+            className="w-4 h-4 text-blue-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -76,9 +76,9 @@ function categoryIcon(category: Notification["category"]) {
       );
     default:
       return (
-        <div className="w-8 h-8 rounded-full bg-zinc-500/10 border border-zinc-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
           <svg
-            className="w-4 h-4 text-zinc-400"
+            className="w-4 h-4 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -116,30 +116,30 @@ export default function NotificationFeed({
   notifications,
 }: NotificationFeedProps) {
   return (
-    <div className="bg-surface-card border border-[#2b2839] rounded-lg overflow-hidden flex flex-col">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-[#2b2839] flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <h3 className="label-tracked">System Notices</h3>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+          <h3 className="text-xs font-medium uppercase tracking-wider text-gray-900">Notifications</h3>
         </div>
-        <span className="text-[10px] font-mono text-zinc-500">
+        <span className="text-[10px] font-mono text-gray-500">
           {notifications.filter((n) => !n.is_read).length} unread
         </span>
       </div>
 
       {/* Scrollable List */}
-      <div className="max-h-64 overflow-y-auto divide-y divide-[#2b2839]/50">
+      <div className="max-h-64 overflow-y-auto divide-y divide-gray-100">
         {notifications.length === 0 && (
-          <div className="px-5 py-8 text-center text-zinc-600 text-xs">
-            No system notices at this time.
+          <div className="px-5 py-8 text-center text-gray-400 text-xs">
+            No notifications at this time.
           </div>
         )}
         {notifications.map((n) => (
           <div
             key={n.id}
-            className={`px-5 py-3 flex gap-3 hover:bg-white/[0.02] transition-colors ${
-              !n.is_read ? "bg-white/[0.01]" : ""
+            className={`px-5 py-3 flex gap-3 hover:bg-gray-50 transition-colors ${
+              !n.is_read ? "bg-blue-50/30" : ""
             }`}
           >
             {categoryIcon(n.category)}
@@ -147,16 +147,16 @@ export default function NotificationFeed({
               <div className="flex items-start justify-between gap-2">
                 <h4
                   className={`text-xs font-semibold truncate ${
-                    !n.is_read ? "text-zinc-100" : "text-zinc-300"
+                    !n.is_read ? "text-gray-900" : "text-gray-700"
                   }`}
                 >
                   {n.title}
                 </h4>
-                <span className="text-[10px] text-zinc-600 whitespace-nowrap flex-shrink-0">
+                <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
                   {formatTimestamp(n.created_at)}
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed line-clamp-2">
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed line-clamp-2">
                 {n.message}
               </p>
             </div>

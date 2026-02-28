@@ -14,7 +14,7 @@ interface FilterBarProps {
   sectors: string[];
 }
 
-const darkSelectOverrides = {
+const lightSelectOverrides = {
   Root: {
     style: {
       backgroundColor: 'transparent',
@@ -22,11 +22,11 @@ const darkSelectOverrides = {
   },
   ControlContainer: {
     style: {
-      backgroundColor: '#1d1c27',
-      borderTopColor: '#2b2839',
-      borderRightColor: '#2b2839',
-      borderBottomColor: '#2b2839',
-      borderLeftColor: '#2b2839',
+      backgroundColor: '#FFFFFF',
+      borderTopColor: '#e5e7eb',
+      borderRightColor: '#e5e7eb',
+      borderBottomColor: '#e5e7eb',
+      borderLeftColor: '#e5e7eb',
       borderTopWidth: '1px',
       borderRightWidth: '1px',
       borderBottomWidth: '1px',
@@ -44,7 +44,7 @@ const darkSelectOverrides = {
   },
   ValueContainer: {
     style: {
-      color: '#ffffff',
+      color: '#111827',
       fontSize: '0.875rem',
       fontWeight: 500,
       paddingLeft: '0.75rem',
@@ -53,41 +53,41 @@ const darkSelectOverrides = {
   },
   SingleValue: {
     style: {
-      color: '#ffffff',
+      color: '#111827',
     },
   },
   Dropdown: {
     style: {
-      backgroundColor: '#1d1c27',
-      borderTopColor: '#2b2839',
-      borderRightColor: '#2b2839',
-      borderBottomColor: '#2b2839',
-      borderLeftColor: '#2b2839',
+      backgroundColor: '#FFFFFF',
+      borderTopColor: '#e5e7eb',
+      borderRightColor: '#e5e7eb',
+      borderBottomColor: '#e5e7eb',
+      borderLeftColor: '#e5e7eb',
     },
   },
   DropdownListItem: {
     style: {
-      color: '#e4e4e7',
-      backgroundColor: '#1d1c27',
+      color: '#374151',
+      backgroundColor: '#FFFFFF',
       ':hover': {
-        backgroundColor: '#2b2839',
+        backgroundColor: '#f9fafb',
       },
     },
   },
   OptionContent: {
     style: {
-      color: '#e4e4e7',
+      color: '#374151',
       fontSize: '0.875rem',
     },
   },
   SelectArrow: {
     style: {
-      color: '#71717a',
+      color: '#9ca3af',
     },
   },
   Placeholder: {
     style: {
-      color: '#71717a',
+      color: '#9ca3af',
     },
   },
   IconsContainer: {
@@ -125,15 +125,15 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
   const sortOptions = [
     { id: "price-asc", label: "Price (Low-High)" },
     { id: "price-desc", label: "Price (High-Low)" },
-    { id: "radiation", label: "Radiation Level" },
-    { id: "oxygen", label: "Oxygen Quality" },
+    { id: "newest", label: "Newest" },
+    { id: "size", label: "Size" },
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-elevated p-4 ring-1 ring-border">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl bg-gray-50 p-4 ring-1 ring-gray-200">
       {/* Sector */}
       <div className="flex flex-col gap-1">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Sector
         </label>
         <div style={{ minWidth: '160px' }}>
@@ -146,14 +146,14 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
             onChange={({ value }) => {
               if (value.length > 0) update("sector", value[0].id as string);
             }}
-            overrides={darkSelectOverrides}
+            overrides={lightSelectOverrides}
           />
         </div>
       </div>
 
       {/* Price Range */}
       <div className="flex flex-col gap-1">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Price Range
         </label>
         <div style={{ minWidth: '180px' }}>
@@ -166,14 +166,14 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
             onChange={({ value }) => {
               if (value.length > 0) update("priceRange", value[0].id as string);
             }}
-            overrides={darkSelectOverrides}
+            overrides={lightSelectOverrides}
           />
         </div>
       </div>
 
       {/* Sort By */}
       <div className="flex flex-col gap-1">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Sort By
         </label>
         <div style={{ minWidth: '180px' }}>
@@ -186,15 +186,15 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
             onChange={({ value }) => {
               if (value.length > 0) update("sortBy", value[0].id as string);
             }}
-            overrides={darkSelectOverrides}
+            overrides={lightSelectOverrides}
           />
         </div>
       </div>
 
       {/* Decorative tag */}
-      <div className="ml-auto hidden items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-light ring-1 ring-primary/20 sm:flex">
-        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-light" />
-        Live Inventory
+      <div className="ml-auto hidden items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-500 ring-1 ring-gray-200 sm:flex">
+        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
+        Live Listings
       </div>
     </div>
   );

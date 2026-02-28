@@ -39,17 +39,17 @@ export default function LeaderboardPage() {
       <div className="space-y-8">
         {/* Page header */}
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-[0.15em] text-white">
-            <span className="text-accent-red">EVICTION</span> LEADERBOARD
+          <h1 className="text-3xl font-black uppercase tracking-[0.15em] text-gray-900">
+            Lease Risk Assessment
           </h1>
-          <p className="mt-2 text-sm text-zinc-500">
-            Real-time tenant risk assessment &mdash; updated every cycle.
+          <p className="mt-2 text-sm text-gray-500">
+            Resident risk profiles based on payment history and Community Score.
           </p>
         </div>
 
         {/* Error state */}
         {error && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -58,9 +58,9 @@ export default function LeaderboardPage() {
         {isLoading && (
           <div className="flex items-center justify-center py-20">
             <div className="space-y-3 text-center">
-              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary-light border-t-transparent" />
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                Calculating eviction probabilities...
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500">
+                Calculating risk scores...
               </p>
             </div>
           </div>
@@ -73,16 +73,16 @@ export default function LeaderboardPage() {
 
         {/* Empty state */}
         {!isLoading && !error && entries.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-[#2b2839] bg-surface-card py-16 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-2xl text-primary-light">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-white py-16 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-2xl text-blue-500">
               {"\u2616"}
             </div>
-            <p className="text-base font-bold text-white">
+            <p className="text-base font-bold text-gray-900">
               No Leaderboard Data
             </p>
-            <p className="mt-1 text-sm text-zinc-500">
-              The Predictive Compliance Engine has not yet generated tenant risk
-              assessments.
+            <p className="mt-1 text-sm text-gray-500">
+              The risk assessment engine has not yet generated resident risk
+              profiles.
             </p>
           </div>
         )}

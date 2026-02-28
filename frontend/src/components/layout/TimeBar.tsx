@@ -35,6 +35,7 @@ export default function TimeBar() {
     try {
       await apiAdvanceDay(token);
       await fetchDate();
+      window.dispatchEvent(new CustomEvent("time-advanced"));
     } catch {
       // silently fail
     } finally {
@@ -48,6 +49,7 @@ export default function TimeBar() {
     try {
       await apiAdvanceMonth(token);
       await fetchDate();
+      window.dispatchEvent(new CustomEvent("time-advanced"));
     } catch {
       // silently fail
     } finally {
@@ -56,13 +58,13 @@ export default function TimeBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 flex h-12 w-full items-center justify-between border-t border-[#2b2839] bg-surface-card/90 px-6 backdrop-blur-md">
+    <div className="fixed bottom-0 left-0 z-50 flex h-12 w-full items-center justify-between border-t border-gray-200 bg-white px-6">
       {/* Left: simulation date */}
       <div className="flex items-center gap-3 pl-[250px]">
-        <span className="label-tracked text-[10px] text-zinc-500">
+        <span className="text-[10px] uppercase tracking-wider text-gray-500">
           Simulation Date
         </span>
-        <span className="text-sm font-semibold tracking-wide text-zinc-200">
+        <span className="text-sm font-semibold text-gray-900">
           {simDate ?? "..."}
         </span>
       </div>
@@ -77,11 +79,12 @@ export default function TimeBar() {
           overrides={{
             BaseButton: {
               style: {
-                backgroundColor: '#1d1c27',
-                borderTopColor: '#2b2839',
-                borderRightColor: '#2b2839',
-                borderBottomColor: '#2b2839',
-                borderLeftColor: '#2b2839',
+                backgroundColor: '#EFF6FF',
+                color: '#2563EB',
+                borderTopColor: '#BFDBFE',
+                borderRightColor: '#BFDBFE',
+                borderBottomColor: '#BFDBFE',
+                borderLeftColor: '#BFDBFE',
                 borderTopWidth: '1px',
                 borderRightWidth: '1px',
                 borderBottomWidth: '1px',
@@ -90,11 +93,10 @@ export default function TimeBar() {
                 borderRightStyle: 'solid',
                 borderBottomStyle: 'solid',
                 borderLeftStyle: 'solid',
-                borderTopLeftRadius: '0.25rem',
-                borderTopRightRadius: '0.25rem',
-                borderBottomLeftRadius: '0.25rem',
-                borderBottomRightRadius: '0.25rem',
-                color: '#a1a1aa',
+                borderTopLeftRadius: '0.5rem',
+                borderTopRightRadius: '0.5rem',
+                borderBottomLeftRadius: '0.5rem',
+                borderBottomRightRadius: '0.5rem',
                 fontSize: '0.75rem',
                 fontWeight: 500,
                 textTransform: 'uppercase',
@@ -104,11 +106,7 @@ export default function TimeBar() {
                 paddingTop: '0.25rem',
                 paddingBottom: '0.25rem',
                 ':hover': {
-                  borderTopColor: 'rgba(50, 17, 212, 0.5)',
-                  borderRightColor: 'rgba(50, 17, 212, 0.5)',
-                  borderBottomColor: 'rgba(50, 17, 212, 0.5)',
-                  borderLeftColor: 'rgba(50, 17, 212, 0.5)',
-                  color: '#a78bfa',
+                  backgroundColor: '#DBEAFE',
                 },
                 ':disabled': {
                   opacity: 0.4,
@@ -127,11 +125,12 @@ export default function TimeBar() {
           overrides={{
             BaseButton: {
               style: {
-                backgroundColor: '#1d1c27',
-                borderTopColor: '#2b2839',
-                borderRightColor: '#2b2839',
-                borderBottomColor: '#2b2839',
-                borderLeftColor: '#2b2839',
+                backgroundColor: '#EFF6FF',
+                color: '#2563EB',
+                borderTopColor: '#BFDBFE',
+                borderRightColor: '#BFDBFE',
+                borderBottomColor: '#BFDBFE',
+                borderLeftColor: '#BFDBFE',
                 borderTopWidth: '1px',
                 borderRightWidth: '1px',
                 borderBottomWidth: '1px',
@@ -140,11 +139,10 @@ export default function TimeBar() {
                 borderRightStyle: 'solid',
                 borderBottomStyle: 'solid',
                 borderLeftStyle: 'solid',
-                borderTopLeftRadius: '0.25rem',
-                borderTopRightRadius: '0.25rem',
-                borderBottomLeftRadius: '0.25rem',
-                borderBottomRightRadius: '0.25rem',
-                color: '#a1a1aa',
+                borderTopLeftRadius: '0.5rem',
+                borderTopRightRadius: '0.5rem',
+                borderBottomLeftRadius: '0.5rem',
+                borderBottomRightRadius: '0.5rem',
                 fontSize: '0.75rem',
                 fontWeight: 500,
                 textTransform: 'uppercase',
@@ -154,11 +152,7 @@ export default function TimeBar() {
                 paddingTop: '0.25rem',
                 paddingBottom: '0.25rem',
                 ':hover': {
-                  borderTopColor: 'rgba(50, 17, 212, 0.5)',
-                  borderRightColor: 'rgba(50, 17, 212, 0.5)',
-                  borderBottomColor: 'rgba(50, 17, 212, 0.5)',
-                  borderLeftColor: 'rgba(50, 17, 212, 0.5)',
-                  color: '#a78bfa',
+                  backgroundColor: '#DBEAFE',
                 },
                 ':disabled': {
                   opacity: 0.4,

@@ -23,7 +23,7 @@ type Step = "plan" | "verification" | "approved";
 const PLANS = [
   { months: 3, label: "3 Months", badge: "QUICK PAY" },
   { months: 6, label: "6 Months", badge: "RECOMMENDED" },
-  { months: 12, label: "12 Months", badge: "DEBT TRAP" },
+  { months: 12, label: "12 Months", badge: "EXTENDED PLAN" },
 ] as const;
 
 export default function KlarnaCheckout({
@@ -75,7 +75,6 @@ export default function KlarnaCheckout({
       await applyForUnit(token, unit.id, selectedPlan);
       setStep("approved");
     } catch (err: any) {
-      // Even on API failure, still show "approved" for the satirical effect
       setApiError(err.message || "Application recorded with discrepancies.");
       setStep("approved");
     }
@@ -107,11 +106,11 @@ export default function KlarnaCheckout({
         },
         Dialog: {
           style: {
-            backgroundColor: '#1d1c27',
-            borderTopColor: 'rgba(255, 176, 205, 0.2)',
-            borderRightColor: 'rgba(255, 176, 205, 0.2)',
-            borderBottomColor: 'rgba(255, 176, 205, 0.2)',
-            borderLeftColor: 'rgba(255, 176, 205, 0.2)',
+            backgroundColor: '#FFFFFF',
+            borderTopColor: '#e5e7eb',
+            borderRightColor: '#e5e7eb',
+            borderBottomColor: '#e5e7eb',
+            borderLeftColor: '#e5e7eb',
             borderTopWidth: '1px',
             borderRightWidth: '1px',
             borderBottomWidth: '1px',
@@ -137,9 +136,9 @@ export default function KlarnaCheckout({
         },
         Close: {
           style: {
-            color: '#a1a1aa',
+            color: '#9ca3af',
             ':hover': {
-              color: '#ffffff',
+              color: '#4b5563',
             },
           },
         },
@@ -147,17 +146,17 @@ export default function KlarnaCheckout({
     >
       <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Klarna branding header */}
-        <div className="border-b border-accent-klarna/20 bg-gradient-to-r from-accent-klarna/10 via-accent-klarna/5 to-transparent px-6 py-4">
+        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-klarna text-sm font-black text-black">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFB3C7] text-sm font-black text-black">
               K
             </div>
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-accent-klarna">
+              <p className="text-sm font-bold uppercase tracking-wider text-gray-900">
                 Klarna Installments
               </p>
-              <p className="text-[10px] text-zinc-500">
-                Powered by MegaCorp Financial Services
+              <p className="text-[10px] text-gray-500">
+                Powered by Landly Financial Services
               </p>
             </div>
           </div>
@@ -171,8 +170,8 @@ export default function KlarnaCheckout({
                 className={`h-1 w-full rounded-full transition-colors ${
                   i <=
                   ["plan", "verification", "approved"].indexOf(step)
-                    ? "bg-accent-klarna"
-                    : "bg-border"
+                    ? "bg-[#FFB3C7]"
+                    : "bg-gray-200"
                 }`}
               />
             </div>
@@ -185,11 +184,11 @@ export default function KlarnaCheckout({
           {step === "plan" && (
             <div className="flex flex-col gap-5">
               <div>
-                <h3 className="text-lg font-bold uppercase tracking-tight text-white">
+                <h3 className="text-lg font-bold uppercase tracking-tight text-gray-900">
                   Klarna Installment Plan
                 </h3>
-                <p className="mt-1 text-xs text-zinc-500">
-                  Split your deposit for <strong className="text-white">{unit.name}</strong> into
+                <p className="mt-1 text-xs text-gray-500">
+                  Split your deposit for <strong className="text-gray-900">{unit.name}</strong> into
                   manageable installments. Interest rates are non-negotiable.
                 </p>
               </div>
@@ -208,46 +207,46 @@ export default function KlarnaCheckout({
                       onClick={() => setSelectedPlan(plan.months)}
                       className={`flex items-center justify-between rounded-xl p-4 text-left transition-all ring-1 ${
                         isSelected
-                          ? "bg-accent-klarna/10 ring-accent-klarna/50 shadow-lg shadow-accent-klarna/5"
-                          : "bg-surface-elevated ring-border hover:ring-accent-klarna/20"
+                          ? "bg-[#FFB3C7]/10 ring-[#FFB3C7]/50 shadow-lg shadow-[#FFB3C7]/5"
+                          : "bg-gray-50 ring-gray-200 hover:ring-[#FFB3C7]/20"
                       }`}
                     >
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-white">
+                          <span className="text-sm font-bold text-gray-900">
                             {plan.label}
                           </span>
                           <span
                             className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                              plan.badge === "DEBT TRAP"
-                                ? "bg-accent-red/20 text-accent-red"
+                              plan.badge === "EXTENDED PLAN"
+                                ? "bg-gray-200 text-gray-600"
                                 : plan.badge === "RECOMMENDED"
-                                ? "bg-accent-klarna/20 text-accent-klarna"
-                                : "bg-accent-green/20 text-accent-green"
+                                ? "bg-[#FFB3C7]/20 text-[#FFB3C7]"
+                                : "bg-green-100 text-green-700"
                             }`}
                           >
                             {plan.badge}
                           </span>
                         </div>
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-xs text-gray-500">
                           {plan.months} monthly payments &bull; 35% APR
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-lg font-bold text-accent-klarna">
+                        <span className="text-lg font-bold text-[#FFB3C7]">
                           ${payment}
                         </span>
-                        <span className="text-xs text-zinc-500">/mo</span>
+                        <span className="text-xs text-gray-500">/mo</span>
                       </div>
                     </button>
                   );
                 })}
               </div>
 
-              <p className="text-center text-[10px] text-zinc-600">
-                By continuing, you irrevocably consent to social credit
-                monitoring for the duration of your lease. Missed payments will
-                be reported to the Citizen Compliance Bureau.
+              <p className="text-center text-[10px] text-gray-400">
+                By continuing, you agree to payment monitoring for the duration
+                of your installment plan. Late payments may affect your Community
+                Score.
               </p>
 
               <Button
@@ -257,7 +256,7 @@ export default function KlarnaCheckout({
                     style: {
                       width: '100%',
                       height: '2.75rem',
-                      backgroundColor: '#ffb0cd',
+                      backgroundColor: '#FFB3C7',
                       color: '#000000',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -283,19 +282,18 @@ export default function KlarnaCheckout({
             <div className="flex flex-col items-center gap-6 py-8">
               {/* Spinner */}
               <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 animate-spin rounded-full border-2 border-accent-klarna/20 border-t-accent-klarna" />
-                <span className="text-lg font-bold text-accent-klarna">
+                <div className="absolute inset-0 animate-spin rounded-full border-2 border-[#FFB3C7]/20 border-t-[#FFB3C7]" />
+                <span className="text-lg font-bold text-[#FFB3C7]">
                   {Math.round(progress)}%
                 </span>
               </div>
 
               <div className="text-center">
-                <h3 className="text-base font-bold uppercase tracking-tight text-white">
-                  Verifying Social Credit Score...
+                <h3 className="text-base font-bold uppercase tracking-tight text-gray-900">
+                  Verifying Community Score...
                 </h3>
-                <p className="mt-2 text-xs text-zinc-500">
-                  Cross-referencing citizen compliance database. Do not close
-                  this window. Your cooperation is appreciated.
+                <p className="mt-2 text-xs text-gray-500">
+                  Verifying your resident profile. This may take a moment.
                 </p>
               </div>
 
@@ -309,7 +307,7 @@ export default function KlarnaCheckout({
                   overrides={{
                     BarContainer: {
                       style: {
-                        backgroundColor: '#2b2839',
+                        backgroundColor: '#f3f4f6',
                         borderTopLeftRadius: '9999px',
                         borderTopRightRadius: '9999px',
                         borderBottomLeftRadius: '9999px',
@@ -329,7 +327,7 @@ export default function KlarnaCheckout({
                     },
                     BarProgress: {
                       style: {
-                        background: 'linear-gradient(90deg, rgba(255,176,205,0.6) 0%, #ffb0cd 100%)',
+                        background: 'linear-gradient(90deg, rgba(255,179,199,0.6) 0%, #FFB3C7 100%)',
                         borderTopLeftRadius: '9999px',
                         borderTopRightRadius: '9999px',
                         borderBottomLeftRadius: '9999px',
@@ -340,20 +338,20 @@ export default function KlarnaCheckout({
                 />
               </div>
 
-              <div className="space-y-1 text-center text-[10px] text-zinc-600">
-                <p>{progress < 30 && "Accessing citizen records..."}</p>
+              <div className="space-y-1 text-center text-[10px] text-gray-400">
+                <p>{progress < 30 && "Verifying identity..."}</p>
                 <p>
                   {progress >= 30 &&
                     progress < 60 &&
-                    "Evaluating debt-to-compliance ratio..."}
+                    "Checking payment history..."}
                 </p>
                 <p>
                   {progress >= 60 &&
                     progress < 90 &&
-                    "Running predictive obedience model..."}
+                    "Calculating approval..."}
                 </p>
                 <p>
-                  {progress >= 90 && "Finalizing credit assessment..."}
+                  {progress >= 90 && "Finalizing..."}
                 </p>
               </div>
             </div>
@@ -363,9 +361,9 @@ export default function KlarnaCheckout({
           {step === "approved" && (
             <div className="flex flex-col items-center gap-5 py-6">
               {/* Green checkmark */}
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent-green/10 ring-2 ring-accent-green/30">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-50 ring-2 ring-green-200">
                 <svg
-                  className="h-10 w-10 text-accent-green"
+                  className="h-10 w-10 text-green-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -380,16 +378,16 @@ export default function KlarnaCheckout({
               </div>
 
               <div className="text-center">
-                <p className="text-2xl font-black uppercase tracking-tight text-accent-green">
+                <p className="text-2xl font-black uppercase tracking-tight text-green-600">
                   Approved
                 </p>
-                <p className="mt-1 text-sm text-zinc-400">
-                  Welcome to <strong className="text-white">{unit.name}</strong>
+                <p className="mt-1 text-sm text-gray-500">
+                  Welcome to <strong className="text-gray-900">{unit.name}</strong>
                 </p>
               </div>
 
               {/* Summary */}
-              <div className="w-full rounded-xl bg-surface-elevated p-4 ring-1 ring-border">
+              <div className="w-full rounded-xl bg-gray-50 p-4 ring-1 ring-gray-200">
                 <div className="flex flex-col gap-3">
                   <Row label="Unit" value={unit.name} />
                   <Row label="Sector" value={unit.sector} />
@@ -410,14 +408,13 @@ export default function KlarnaCheckout({
                 </div>
               </div>
 
-              <p className="text-center text-[10px] text-zinc-600">
-                Your Social Credit Score has been noted. Non-compliance with
-                payment schedules will result in immediate trust score
-                adjustments and potential relocation to lower-tier housing.
+              <p className="text-center text-[10px] text-gray-400">
+                Your Community Score has been noted. Late payments may result in
+                Community Score adjustments and updated lease terms.
               </p>
 
               {apiError && (
-                <p className="text-center text-[10px] text-accent-yellow">
+                <p className="text-center text-[10px] text-amber-500">
                   System note: {apiError}
                 </p>
               )}
@@ -432,7 +429,7 @@ export default function KlarnaCheckout({
                     style: {
                       width: '100%',
                       height: '2.75rem',
-                      backgroundColor: '#ffb0cd',
+                      backgroundColor: '#FFB3C7',
                       color: '#000000',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -471,16 +468,16 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+      <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
         {label}
       </span>
       <span
         className={`text-sm font-bold ${
           warn
-            ? "text-accent-red"
+            ? "text-red-500"
             : highlight
-            ? "text-accent-klarna"
-            : "text-white"
+            ? "text-[#FFB3C7]"
+            : "text-gray-900"
         }`}
       >
         {value}
