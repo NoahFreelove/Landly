@@ -1,10 +1,11 @@
 "use client";
 
-import { Client as Styletron } from "styletron-engine-monolithic";
+import { Client, Server } from "styletron-engine-monolithic";
 import { Provider as StyletronProvider } from "styletron-react";
 import { createDarkTheme, BaseProvider } from "baseui";
 
-const engine = typeof window !== "undefined" ? new Styletron() : undefined;
+const engine =
+  typeof window !== "undefined" ? new Client() : new Server();
 
 const landlyTheme = createDarkTheme({
   colors: {
@@ -54,7 +55,6 @@ const landlyTheme = createDarkTheme({
 });
 
 export function StyletronRegistry({ children }: { children: React.ReactNode }) {
-  if (!engine) return <>{children}</>;
   return (
     <StyletronProvider value={engine}>
       <BaseProvider theme={landlyTheme}>{children}</BaseProvider>
