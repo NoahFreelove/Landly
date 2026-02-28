@@ -52,6 +52,73 @@ def make_payment(req: PaymentRequest, user: User = Depends(get_current_user), db
     db.commit()
     return {"message": "Payment processed", "new_social_credit": user.social_credit_score}
 
+@router.post("/lump-sum")
+def lump_sum_payment(req: LumpSumRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if req.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be greater than 0")
+
+    remaining = req.amount
+    items_paid = 0
+
+    # Query overdue payments first (sorted by due_date ASC), then pending payments (sorted by due_date ASC)
+    overdue_payments = db.query(Payment).filter(
+        Payment.user_id == user.id, Payment.status == "overdue"
+    ).order_by(Payment.due_date.asc()).all()
+
+    pending_payments = db.query(Payment).filter(
+        Payment.user_id == user.id, Payment.status == "pending"
+    ).order_by(Payment.due_date.asc()).all()
+
+    all_payments = overdue_payments + pending_payments
+
+    for payment in all_payments:
+        if remaining <= 0:
+            break
+        payment_total = payment.amount + payment.accrued_interest
+        if remaining >= payment_total:
+            payment.status = "paid"
+            remaining -= payment_total
+            items_paid += 1
+            user.social_credit_score = min(1000, user.social_credit_score + 10)
+        else:
+            # Partial payment: reduce the payment amount by what we can cover
+            payment.amount -= remaining
+            remaining = 0
+
+    # Apply remaining to active Klarna debts
+    if remaining > 0:
+        klarna_debts = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == user.id, KlarnaDebt.status == "active"
+        ).all()
+
+        for debt in klarna_debts:
+            if remaining <= 0:
+                break
+            installment_amount = debt.total_amount / debt.installments
+            remaining_installments = debt.installments - debt.installments_paid
+
+            for _ in range(remaining_installments):
+                if remaining >= installment_amount:
+                    remaining -= installment_amount
+                    debt.installments_paid += 1
+                    items_paid += 1
+                    user.social_credit_score = min(1000, user.social_credit_score + 10)
+                else:
+                    break
+
+            if debt.installments_paid >= debt.installments:
+                debt.status = "completed"
+
+    amount_applied = req.amount - remaining
+    db.commit()
+
+    return {
+        "message": "Payment applied successfully",
+        "amount_applied": round(amount_applied, 2),
+        "items_paid": items_paid,
+        "new_social_credit": user.social_credit_score
+    }
+
 @router.get("/eviction-status", response_model=EvictionStatusResponse)
 def eviction_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     overdue = db.query(Payment).filter(Payment.user_id == user.id, Payment.status == "overdue").all()
