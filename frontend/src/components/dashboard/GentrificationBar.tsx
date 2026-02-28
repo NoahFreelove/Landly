@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ProgressBar } from "baseui/progress-bar";
 
 interface GentrificationBarProps {
   index: number;
@@ -20,13 +21,20 @@ function getLabelColor(index: number): string {
   return "text-red-400";
 }
 
+function getBarColor(index: number): string {
+  if (index < 25) return "#22c55e";
+  if (index < 50) return "#eab308";
+  if (index < 75) return "#f97316";
+  return "#ef4444";
+}
+
 export default function GentrificationBar({ index }: GentrificationBarProps) {
-  const [animatedWidth, setAnimatedWidth] = useState(0);
+  const [animatedValue, setAnimatedValue] = useState(0);
 
   useEffect(() => {
     // Trigger animation after mount
     const timeout = setTimeout(() => {
-      setAnimatedWidth(Math.min(index, 100));
+      setAnimatedValue(Math.min(index, 100));
     }, 100);
     return () => clearTimeout(timeout);
   }, [index]);
@@ -58,27 +66,55 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="relative w-full h-3 bg-white/5 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-1500 ease-out relative"
-          style={{
-            width: `${animatedWidth}%`,
-            background:
-              "linear-gradient(90deg, #22c55e 0%, #eab308 40%, #f97316 70%, #ef4444 100%)",
-            transitionDuration: "1.5s",
-          }}
-        >
-          {/* Shimmer effect */}
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)",
-              animation: "shimmer 2s infinite",
-            }}
-          />
-        </div>
-      </div>
+      <ProgressBar
+        value={animatedValue}
+        maxValue={100}
+        minValue={0}
+        showLabel={false}
+        overrides={{
+          Root: {
+            style: {
+              marginLeft: '0',
+              marginRight: '0',
+              marginTop: '0',
+              marginBottom: '0',
+            },
+          },
+          BarContainer: {
+            style: {
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderTopLeftRadius: '9999px',
+              borderTopRightRadius: '9999px',
+              borderBottomLeftRadius: '9999px',
+              borderBottomRightRadius: '9999px',
+              overflow: 'hidden',
+              height: '0.75rem',
+              marginLeft: '0',
+              marginRight: '0',
+            },
+          },
+          Bar: {
+            style: {
+              borderTopLeftRadius: '9999px',
+              borderTopRightRadius: '9999px',
+              borderBottomLeftRadius: '9999px',
+              borderBottomRightRadius: '9999px',
+            },
+          },
+          BarProgress: {
+            style: {
+              backgroundColor: getBarColor(index),
+              borderTopLeftRadius: '9999px',
+              borderTopRightRadius: '9999px',
+              borderBottomLeftRadius: '9999px',
+              borderBottomRightRadius: '9999px',
+              transitionProperty: 'width',
+              transitionDuration: '1.5s',
+              transitionTimingFunction: 'ease-out',
+            },
+          },
+        }}
+      />
 
       {/* Scale labels */}
       <div className="flex justify-between mt-2 text-[9px] font-mono text-zinc-600">
@@ -88,17 +124,6 @@ export default function GentrificationBar({ index }: GentrificationBarProps) {
         <span>75</span>
         <span>100 - Displaced</span>
       </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(200%);
-          }
-        }
-      `}</style>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import type { Payment, KlarnaDebt } from "@/lib/types";
+import { Table } from "baseui/table-semantic";
+import { Tag, KIND as TAG_KIND, HIERARCHY as TAG_HIERARCHY } from "baseui/tag";
 
 interface PaymentTableProps {
   payments: Payment[];
@@ -8,27 +10,58 @@ interface PaymentTableProps {
 }
 
 function statusPill(status: Payment["status"]) {
-  const styles: Record<Payment["status"], string> = {
-    paid: "bg-green-500/10 text-green-400 border-green-500/20",
-    pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    overdue: "bg-red-500/10 text-red-400 border-red-500/20",
-    defaulted: "bg-red-500/20 text-red-300 border-red-500/30",
+  const kindMap: Record<Payment["status"], string> = {
+    paid: "positive",
+    pending: "warning",
+    overdue: "negative",
+    defaulted: "negative",
   };
+
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${styles[status]}`}
+    <Tag
+      closeable={false}
+      kind={kindMap[status] as any}
+      hierarchy={TAG_HIERARCHY.secondary}
+      overrides={{
+        Root: {
+          style: {
+            marginTop: '0',
+            marginBottom: '0',
+            marginLeft: '0',
+            marginRight: '0',
+            borderTopLeftRadius: '0.25rem',
+            borderTopRightRadius: '0.25rem',
+            borderBottomLeftRadius: '0.25rem',
+            borderBottomRightRadius: '0.25rem',
+            paddingTop: '2px',
+            paddingBottom: '2px',
+            paddingLeft: '8px',
+            paddingRight: '8px',
+            fontSize: '10px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            height: 'auto',
+            ...(status === "defaulted"
+              ? {
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                  color: '#fca5a5',
+                }
+              : {}),
+          },
+        },
+        Text: {
+          style: {
+            fontSize: '10px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          },
+        },
+      }}
     >
-      <span
-        className={`w-1.5 h-1.5 rounded-full ${
-          status === "paid"
-            ? "bg-green-400"
-            : status === "pending"
-            ? "bg-amber-400"
-            : "bg-red-400 animate-pulse"
-        }`}
-      />
       {status}
-    </span>
+    </Tag>
   );
 }
 
@@ -46,17 +79,40 @@ function formatDate(dateStr: string) {
 function klarnaStatusBadge(debt: KlarnaDebt) {
   const isOverdue = debt.status === "overdue";
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
-        isOverdue
-          ? "bg-red-500/10 text-red-400 border-red-500/20"
-          : debt.status === "completed"
-          ? "bg-green-500/10 text-green-400 border-green-500/20"
-          : "bg-accent-klarna/10 text-accent-klarna border-accent-klarna/20"
-      }`}
+    <Tag
+      closeable={false}
+      kind={isOverdue ? "negative" as any : debt.status === "completed" ? "positive" as any : "custom" as any}
+      hierarchy={TAG_HIERARCHY.secondary}
+      overrides={{
+        Root: {
+          style: {
+            marginTop: '0',
+            marginBottom: '0',
+            marginLeft: '0',
+            marginRight: '0',
+            borderTopLeftRadius: '0.25rem',
+            borderTopRightRadius: '0.25rem',
+            borderBottomLeftRadius: '0.25rem',
+            borderBottomRightRadius: '0.25rem',
+            fontSize: '10px',
+            fontWeight: 700,
+            height: 'auto',
+            ...(!isOverdue && debt.status !== "completed"
+              ? {
+                  backgroundColor: 'rgba(255, 176, 205, 0.1)',
+                  color: '#ffb0cd',
+                  borderTopColor: 'rgba(255, 176, 205, 0.2)',
+                  borderRightColor: 'rgba(255, 176, 205, 0.2)',
+                  borderBottomColor: 'rgba(255, 176, 205, 0.2)',
+                  borderLeftColor: 'rgba(255, 176, 205, 0.2)',
+                }
+              : {}),
+          },
+        },
+      }}
     >
       {debt.installments_paid}/{debt.installments} paid
-    </span>
+    </Tag>
   );
 }
 
@@ -64,6 +120,26 @@ export default function PaymentTable({
   payments,
   klarnaDebts,
 }: PaymentTableProps) {
+  const tableData = payments.map((p) => [
+    <span key="type" className="text-zinc-200 font-medium capitalize text-xs">
+      {p.payment_type.replace("_", " ")}
+    </span>,
+    <span key="amount" className="font-mono text-zinc-100 text-xs">
+      ${p.amount.toFixed(2)}
+    </span>,
+    <span key="status">{statusPill(p.status)}</span>,
+    <span key="due" className="text-zinc-400 font-mono text-xs">
+      {formatDate(p.due_date)}
+    </span>,
+    p.accrued_interest > 0 ? (
+      <span key="interest" className="text-red-400 font-mono text-xs">
+        +${p.accrued_interest.toFixed(2)}
+      </span>
+    ) : (
+      <span key="interest" className="text-zinc-600 font-mono text-xs">--</span>
+    ),
+  ]);
+
   return (
     <div className="bg-surface-card border border-[#2b2839] rounded-lg overflow-hidden">
       {/* Header */}
@@ -76,67 +152,86 @@ export default function PaymentTable({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[#2b2839]">
-              <th className="text-left px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                Type
-              </th>
-              <th className="text-right px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                Amount
-              </th>
-              <th className="text-center px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                Status
-              </th>
-              <th className="text-right px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                Due
-              </th>
-              <th className="text-right px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                Interest
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((p) => (
-              <tr
-                key={p.id}
-                className="border-b border-[#2b2839]/50 hover:bg-white/[0.02] transition-colors"
-              >
-                <td className="px-4 py-3 text-zinc-200 font-medium capitalize text-xs">
-                  {p.payment_type.replace("_", " ")}
-                </td>
-                <td className="px-4 py-3 text-right font-mono text-zinc-100 text-xs">
-                  ${p.amount.toFixed(2)}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {statusPill(p.status)}
-                </td>
-                <td className="px-4 py-3 text-right text-zinc-400 font-mono text-xs">
-                  {formatDate(p.due_date)}
-                </td>
-                <td className="px-4 py-3 text-right font-mono text-xs">
-                  {p.accrued_interest > 0 ? (
-                    <span className="text-red-400">
-                      +${p.accrued_interest.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="text-zinc-600">--</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {payments.length === 0 && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-8 text-center text-zinc-600 text-xs"
-                >
-                  No payment records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <Table
+          columns={["Type", "Amount", "Status", "Due", "Interest"]}
+          data={tableData}
+          emptyMessage="No payment records found."
+          overrides={{
+            Root: {
+              style: {
+                backgroundColor: 'transparent',
+              },
+            },
+            Table: {
+              style: {
+                width: '100%',
+                backgroundColor: 'transparent',
+              },
+            },
+            TableHead: {
+              style: {
+                backgroundColor: 'transparent',
+              },
+            },
+            TableHeadRow: {
+              style: {
+                borderBottomColor: '#2b2839',
+                borderBottomWidth: '1px',
+                borderBottomStyle: 'solid',
+              },
+            },
+            TableHeadCell: {
+              style: {
+                fontSize: '10px',
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: '#71717a',
+                backgroundColor: 'transparent',
+                paddingTop: '0.625rem',
+                paddingBottom: '0.625rem',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
+                borderBottomColor: '#2b2839',
+              },
+            },
+            TableBody: {
+              style: {
+                backgroundColor: 'transparent',
+              },
+            },
+            TableBodyRow: {
+              style: {
+                borderBottomColor: 'rgba(43, 40, 57, 0.5)',
+                borderBottomWidth: '1px',
+                borderBottomStyle: 'solid',
+                ':hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                },
+              },
+            },
+            TableBodyCell: {
+              style: {
+                paddingTop: '0.75rem',
+                paddingBottom: '0.75rem',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
+                color: '#e4e4e7',
+                fontSize: '0.75rem',
+                backgroundColor: 'transparent',
+                borderBottomColor: 'rgba(43, 40, 57, 0.5)',
+              },
+            },
+            TableEmptyMessage: {
+              style: {
+                color: '#52525b',
+                fontSize: '0.75rem',
+                textAlign: 'center',
+                padding: '2rem 1rem',
+              },
+            },
+          }}
+        />
       </div>
 
       {/* Klarna Section */}

@@ -7,6 +7,7 @@ import {
   advanceDay as apiAdvanceDay,
   advanceMonth as apiAdvanceMonth,
 } from "@/lib/api";
+import { Button, KIND, SIZE } from "baseui/button";
 
 export default function TimeBar() {
   const { token } = useAuth();
@@ -68,20 +69,106 @@ export default function TimeBar() {
 
       {/* Right: advance buttons */}
       <div className="flex items-center gap-2">
-        <button
+        <Button
           onClick={handleAdvanceDay}
           disabled={isAdvancing}
-          className="rounded border border-[#2b2839] bg-surface-card px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-400 transition-colors hover:border-primary/50 hover:text-primary-light disabled:opacity-40"
+          kind={KIND.secondary}
+          size={SIZE.mini}
+          overrides={{
+            BaseButton: {
+              style: {
+                backgroundColor: '#1d1c27',
+                borderTopColor: '#2b2839',
+                borderRightColor: '#2b2839',
+                borderBottomColor: '#2b2839',
+                borderLeftColor: '#2b2839',
+                borderTopWidth: '1px',
+                borderRightWidth: '1px',
+                borderBottomWidth: '1px',
+                borderLeftWidth: '1px',
+                borderTopStyle: 'solid',
+                borderRightStyle: 'solid',
+                borderBottomStyle: 'solid',
+                borderLeftStyle: 'solid',
+                borderTopLeftRadius: '0.25rem',
+                borderTopRightRadius: '0.25rem',
+                borderBottomLeftRadius: '0.25rem',
+                borderBottomRightRadius: '0.25rem',
+                color: '#a1a1aa',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                paddingLeft: '0.75rem',
+                paddingRight: '0.75rem',
+                paddingTop: '0.25rem',
+                paddingBottom: '0.25rem',
+                ':hover': {
+                  borderTopColor: 'rgba(50, 17, 212, 0.5)',
+                  borderRightColor: 'rgba(50, 17, 212, 0.5)',
+                  borderBottomColor: 'rgba(50, 17, 212, 0.5)',
+                  borderLeftColor: 'rgba(50, 17, 212, 0.5)',
+                  color: '#a78bfa',
+                },
+                ':disabled': {
+                  opacity: 0.4,
+                },
+              },
+            },
+          }}
         >
           {isAdvancing ? "..." : "Advance Day"}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleAdvanceMonth}
           disabled={isAdvancing}
-          className="rounded border border-[#2b2839] bg-surface-card px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-400 transition-colors hover:border-primary/50 hover:text-primary-light disabled:opacity-40"
+          kind={KIND.secondary}
+          size={SIZE.mini}
+          overrides={{
+            BaseButton: {
+              style: {
+                backgroundColor: '#1d1c27',
+                borderTopColor: '#2b2839',
+                borderRightColor: '#2b2839',
+                borderBottomColor: '#2b2839',
+                borderLeftColor: '#2b2839',
+                borderTopWidth: '1px',
+                borderRightWidth: '1px',
+                borderBottomWidth: '1px',
+                borderLeftWidth: '1px',
+                borderTopStyle: 'solid',
+                borderRightStyle: 'solid',
+                borderBottomStyle: 'solid',
+                borderLeftStyle: 'solid',
+                borderTopLeftRadius: '0.25rem',
+                borderTopRightRadius: '0.25rem',
+                borderBottomLeftRadius: '0.25rem',
+                borderBottomRightRadius: '0.25rem',
+                color: '#a1a1aa',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                paddingLeft: '0.75rem',
+                paddingRight: '0.75rem',
+                paddingTop: '0.25rem',
+                paddingBottom: '0.25rem',
+                ':hover': {
+                  borderTopColor: 'rgba(50, 17, 212, 0.5)',
+                  borderRightColor: 'rgba(50, 17, 212, 0.5)',
+                  borderBottomColor: 'rgba(50, 17, 212, 0.5)',
+                  borderLeftColor: 'rgba(50, 17, 212, 0.5)',
+                  color: '#a78bfa',
+                },
+                ':disabled': {
+                  opacity: 0.4,
+                },
+              },
+            },
+          }}
         >
           {isAdvancing ? "..." : "Advance Month"}
-        </button>
+        </Button>
       </div>
     </div>
   );

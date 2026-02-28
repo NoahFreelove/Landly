@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import type { Market } from "@/lib/types";
 import { placeBet } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import {
+  Modal,
+  ModalBody,
+} from "baseui/modal";
+import { Button, KIND, SIZE as BUTTON_SIZE } from "baseui/button";
+import { Input } from "baseui/input";
 
 interface BetModalProps {
   market: Market | null;
@@ -37,15 +43,6 @@ export default function BetModal({
       setIsSubmitting(false);
     }
   }, [isOpen]);
-
-  // Close on Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isSubmitting) onClose();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, isSubmitting, onClose]);
 
   const parsedAmount = parseFloat(amount) || 0;
   const price = market
@@ -87,21 +84,62 @@ export default function BetModal({
     }
   }, [market, token, parsedAmount, position, onBetPlaced, onClose]);
 
-  if (!isOpen || !market) return null;
+  if (!market) return null;
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = Math.round(market.no_price * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={() => !isSubmitting && onClose()}
-      />
-
-      {/* Modal */}
-      <div className="relative z-10 mx-4 w-full max-w-md overflow-hidden rounded-2xl border border-[#2b2839] bg-surface-card shadow-2xl shadow-primary/10">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        if (!isSubmitting) onClose();
+      }}
+      overrides={{
+        Root: {
+          style: {
+            zIndex: 50,
+          },
+        },
+        Dialog: {
+          style: {
+            backgroundColor: '#1d1c27',
+            borderTopColor: '#2b2839',
+            borderRightColor: '#2b2839',
+            borderBottomColor: '#2b2839',
+            borderLeftColor: '#2b2839',
+            borderTopWidth: '1px',
+            borderRightWidth: '1px',
+            borderBottomWidth: '1px',
+            borderLeftWidth: '1px',
+            borderTopStyle: 'solid',
+            borderRightStyle: 'solid',
+            borderBottomStyle: 'solid',
+            borderLeftStyle: 'solid',
+            borderTopLeftRadius: '1rem',
+            borderTopRightRadius: '1rem',
+            borderBottomLeftRadius: '1rem',
+            borderBottomRightRadius: '1rem',
+            maxWidth: '28rem',
+            width: '100%',
+            overflow: 'hidden',
+            padding: '0',
+            boxShadow: '0 25px 50px -12px rgba(50, 17, 212, 0.1)',
+          },
+        },
+        DialogContainer: {
+          style: {
+            backdropFilter: 'blur(4px)',
+          },
+        },
+        Close: {
+          style: {
+            display: 'none',
+          },
+        },
+      }}
+    >
+      <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Confirmation overlay */}
         {showConfirmation && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-surface-card/95 backdrop-blur-sm">
@@ -159,28 +197,110 @@ export default function BetModal({
               Your Position
             </p>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={() => setPosition("yes")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
-                  position === "yes"
-                    ? "border-accent-green bg-accent-green/15 text-accent-green shadow-lg shadow-accent-green/10"
-                    : "border-zinc-700 bg-transparent text-zinc-500 hover:border-zinc-600 hover:text-zinc-400"
-                }`}
+                kind={KIND.secondary}
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      flex: 1,
+                      borderTopWidth: '2px',
+                      borderRightWidth: '2px',
+                      borderBottomWidth: '2px',
+                      borderLeftWidth: '2px',
+                      borderTopStyle: 'solid',
+                      borderRightStyle: 'solid',
+                      borderBottomStyle: 'solid',
+                      borderLeftStyle: 'solid',
+                      borderTopLeftRadius: '0.5rem',
+                      borderTopRightRadius: '0.5rem',
+                      borderBottomLeftRadius: '0.5rem',
+                      borderBottomRightRadius: '0.5rem',
+                      paddingTop: '0.75rem',
+                      paddingBottom: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      fontSize: '0.875rem',
+                      ...(position === "yes"
+                        ? {
+                            borderTopColor: '#00cc66',
+                            borderRightColor: '#00cc66',
+                            borderBottomColor: '#00cc66',
+                            borderLeftColor: '#00cc66',
+                            backgroundColor: 'rgba(0, 204, 102, 0.15)',
+                            color: '#00cc66',
+                          }
+                        : {
+                            borderTopColor: '#3f3f46',
+                            borderRightColor: '#3f3f46',
+                            borderBottomColor: '#3f3f46',
+                            borderLeftColor: '#3f3f46',
+                            backgroundColor: 'transparent',
+                            color: '#71717a',
+                          }),
+                      ':hover': position === "yes"
+                        ? { backgroundColor: 'rgba(0, 204, 102, 0.15)' }
+                        : { borderTopColor: '#52525b', borderRightColor: '#52525b', borderBottomColor: '#52525b', borderLeftColor: '#52525b', color: '#a1a1aa' },
+                    },
+                  },
+                }}
               >
-                <span className="text-lg leading-none">{"\u2191"}</span>
+                <span className="text-lg leading-none mr-2">{"\u2191"}</span>
                 Yes
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setPosition("no")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
-                  position === "no"
-                    ? "border-red-500 bg-red-500/15 text-red-400 shadow-lg shadow-red-500/10"
-                    : "border-zinc-700 bg-transparent text-zinc-500 hover:border-zinc-600 hover:text-zinc-400"
-                }`}
+                kind={KIND.secondary}
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      flex: 1,
+                      borderTopWidth: '2px',
+                      borderRightWidth: '2px',
+                      borderBottomWidth: '2px',
+                      borderLeftWidth: '2px',
+                      borderTopStyle: 'solid',
+                      borderRightStyle: 'solid',
+                      borderBottomStyle: 'solid',
+                      borderLeftStyle: 'solid',
+                      borderTopLeftRadius: '0.5rem',
+                      borderTopRightRadius: '0.5rem',
+                      borderBottomLeftRadius: '0.5rem',
+                      borderBottomRightRadius: '0.5rem',
+                      paddingTop: '0.75rem',
+                      paddingBottom: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      fontSize: '0.875rem',
+                      ...(position === "no"
+                        ? {
+                            borderTopColor: '#ef4444',
+                            borderRightColor: '#ef4444',
+                            borderBottomColor: '#ef4444',
+                            borderLeftColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                            color: '#f87171',
+                          }
+                        : {
+                            borderTopColor: '#3f3f46',
+                            borderRightColor: '#3f3f46',
+                            borderBottomColor: '#3f3f46',
+                            borderLeftColor: '#3f3f46',
+                            backgroundColor: 'transparent',
+                            color: '#71717a',
+                          }),
+                      ':hover': position === "no"
+                        ? { backgroundColor: 'rgba(239, 68, 68, 0.15)' }
+                        : { borderTopColor: '#52525b', borderRightColor: '#52525b', borderBottomColor: '#52525b', borderLeftColor: '#52525b', color: '#a1a1aa' },
+                    },
+                  },
+                }}
               >
-                <span className="text-lg leading-none">{"\u2193"}</span>
+                <span className="text-lg leading-none mr-2">{"\u2193"}</span>
                 No
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -189,36 +309,102 @@ export default function BetModal({
             <label className="mb-2 block text-xs font-medium text-zinc-400">
               Amount (LDLY)
             </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  setError(null);
-                }}
-                placeholder="0.00"
-                className="w-full rounded-lg border border-zinc-700 bg-surface-page px-4 py-3 pr-16 text-lg font-bold tabular-nums text-white placeholder-zinc-600 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
-                LDLY
-              </span>
-            </div>
+            <Input
+              type="number"
+              min={0.01}
+              step={0.01}
+              value={amount}
+              onChange={(e) => {
+                setAmount((e.target as HTMLInputElement).value);
+                setError(null);
+              }}
+              placeholder="0.00"
+              endEnhancer={() => (
+                <span className="text-sm font-semibold text-zinc-500">LDLY</span>
+              )}
+              overrides={{
+                Root: {
+                  style: {
+                    backgroundColor: '#131022',
+                    borderTopColor: '#3f3f46',
+                    borderRightColor: '#3f3f46',
+                    borderBottomColor: '#3f3f46',
+                    borderLeftColor: '#3f3f46',
+                    borderTopWidth: '1px',
+                    borderRightWidth: '1px',
+                    borderBottomWidth: '1px',
+                    borderLeftWidth: '1px',
+                    borderTopStyle: 'solid' as const,
+                    borderRightStyle: 'solid' as const,
+                    borderBottomStyle: 'solid' as const,
+                    borderLeftStyle: 'solid' as const,
+                    borderTopLeftRadius: '0.5rem',
+                    borderTopRightRadius: '0.5rem',
+                    borderBottomLeftRadius: '0.5rem',
+                    borderBottomRightRadius: '0.5rem',
+                  },
+                },
+                Input: {
+                  style: {
+                    color: '#ffffff',
+                    backgroundColor: '#131022',
+                    fontSize: '1.125rem',
+                    fontWeight: 700,
+                    fontVariantNumeric: 'tabular-nums',
+                    '::placeholder': { color: '#52525b' },
+                  },
+                },
+                InputContainer: {
+                  style: {
+                    backgroundColor: '#131022',
+                  },
+                },
+              }}
+            />
             {/* Quick amount buttons */}
             <div className="mt-2 flex gap-2">
               {[10, 50, 100, 250].map((v) => (
-                <button
+                <Button
                   key={v}
                   onClick={() => {
                     setAmount(v.toString());
                     setError(null);
                   }}
-                  className="flex-1 rounded border border-zinc-700 py-1 text-xs font-bold text-zinc-400 transition-colors hover:border-primary/50 hover:text-white"
+                  kind={KIND.secondary}
+                  size={BUTTON_SIZE.compact}
+                  overrides={{
+                    BaseButton: {
+                      style: {
+                        flex: 1,
+                        borderTopWidth: '1px',
+                        borderRightWidth: '1px',
+                        borderBottomWidth: '1px',
+                        borderLeftWidth: '1px',
+                        borderTopStyle: 'solid',
+                        borderRightStyle: 'solid',
+                        borderBottomStyle: 'solid',
+                        borderLeftStyle: 'solid',
+                        borderTopColor: '#3f3f46',
+                        borderRightColor: '#3f3f46',
+                        borderBottomColor: '#3f3f46',
+                        borderLeftColor: '#3f3f46',
+                        backgroundColor: 'transparent',
+                        color: '#a1a1aa',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        ':hover': {
+                          borderTopColor: 'rgba(50, 17, 212, 0.5)',
+                          borderRightColor: 'rgba(50, 17, 212, 0.5)',
+                          borderBottomColor: 'rgba(50, 17, 212, 0.5)',
+                          borderLeftColor: 'rgba(50, 17, 212, 0.5)',
+                          color: '#ffffff',
+                        },
+                      },
+                    },
+                  }}
                 >
                   {v}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -274,22 +460,44 @@ export default function BetModal({
           )}
 
           {/* Submit */}
-          <button
+          <Button
             onClick={handleSubmit}
             disabled={isSubmitting || parsedAmount <= 0}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            isLoading={isSubmitting}
+            overrides={{
+              BaseButton: {
+                style: {
+                  width: '100%',
+                  backgroundColor: '#3211d4',
+                  paddingTop: '0.875rem',
+                  paddingBottom: '0.875rem',
+                  borderTopLeftRadius: '0.5rem',
+                  borderTopRightRadius: '0.5rem',
+                  borderBottomLeftRadius: '0.5rem',
+                  borderBottomRightRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: '#ffffff',
+                  boxShadow: '0 10px 15px -3px rgba(50, 17, 212, 0.25)',
+                  ':hover': {
+                    backgroundColor: '#2a0eb3',
+                    boxShadow: '0 20px 25px -5px rgba(50, 17, 212, 0.3)',
+                  },
+                  ':disabled': {
+                    opacity: 0.5,
+                    cursor: 'not-allowed',
+                    boxShadow: 'none',
+                  },
+                },
+              },
+            }}
           >
-            {isSubmitting ? (
-              <>
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Processing...
-              </>
-            ) : (
-              "Confirm Bet"
-            )}
-          </button>
+            {isSubmitting ? "Processing..." : "Confirm Bet"}
+          </Button>
         </div>
-      </div>
-    </div>
+      </ModalBody>
+    </Modal>
   );
 }

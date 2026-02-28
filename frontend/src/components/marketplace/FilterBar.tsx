@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Select, SIZE as SELECT_SIZE } from "baseui/select";
 
 interface FilterState {
   sector: string;
@@ -12,6 +13,89 @@ interface FilterBarProps {
   onFilter: (filters: FilterState) => void;
   sectors: string[];
 }
+
+const darkSelectOverrides = {
+  Root: {
+    style: {
+      backgroundColor: 'transparent',
+    },
+  },
+  ControlContainer: {
+    style: {
+      backgroundColor: '#1d1c27',
+      borderTopColor: '#2b2839',
+      borderRightColor: '#2b2839',
+      borderBottomColor: '#2b2839',
+      borderLeftColor: '#2b2839',
+      borderTopWidth: '1px',
+      borderRightWidth: '1px',
+      borderBottomWidth: '1px',
+      borderLeftWidth: '1px',
+      borderTopStyle: 'solid' as const,
+      borderRightStyle: 'solid' as const,
+      borderBottomStyle: 'solid' as const,
+      borderLeftStyle: 'solid' as const,
+      borderTopLeftRadius: '0.5rem',
+      borderTopRightRadius: '0.5rem',
+      borderBottomLeftRadius: '0.5rem',
+      borderBottomRightRadius: '0.5rem',
+      minHeight: '36px',
+    },
+  },
+  ValueContainer: {
+    style: {
+      color: '#ffffff',
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      paddingLeft: '0.75rem',
+      paddingRight: '0.75rem',
+    },
+  },
+  SingleValue: {
+    style: {
+      color: '#ffffff',
+    },
+  },
+  Dropdown: {
+    style: {
+      backgroundColor: '#1d1c27',
+      borderTopColor: '#2b2839',
+      borderRightColor: '#2b2839',
+      borderBottomColor: '#2b2839',
+      borderLeftColor: '#2b2839',
+    },
+  },
+  DropdownListItem: {
+    style: {
+      color: '#e4e4e7',
+      backgroundColor: '#1d1c27',
+      ':hover': {
+        backgroundColor: '#2b2839',
+      },
+    },
+  },
+  OptionContent: {
+    style: {
+      color: '#e4e4e7',
+      fontSize: '0.875rem',
+    },
+  },
+  SelectArrow: {
+    style: {
+      color: '#71717a',
+    },
+  },
+  Placeholder: {
+    style: {
+      color: '#71717a',
+    },
+  },
+  IconsContainer: {
+    style: {
+      paddingRight: '0.5rem',
+    },
+  },
+};
 
 export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
   const [filters, setFilters] = useState<FilterState>({
@@ -26,6 +110,25 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
     onFilter(next);
   }
 
+  const sectorOptions = [
+    { id: "all", label: "All Sectors" },
+    ...sectors.map((s) => ({ id: s, label: s })),
+  ];
+
+  const priceOptions = [
+    { id: "all", label: "Any Price" },
+    { id: "under-1000", label: "Under $1,000/mo" },
+    { id: "1000-2000", label: "$1,000 - $2,000/mo" },
+    { id: "2000-plus", label: "$2,000+/mo" },
+  ];
+
+  const sortOptions = [
+    { id: "price-asc", label: "Price (Low-High)" },
+    { id: "price-desc", label: "Price (High-Low)" },
+    { id: "radiation", label: "Radiation Level" },
+    { id: "oxygen", label: "Oxygen Quality" },
+  ];
+
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-elevated p-4 ring-1 ring-border">
       {/* Sector */}
@@ -33,18 +136,19 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
         <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
           Sector
         </label>
-        <select
-          value={filters.sector}
-          onChange={(e) => update("sector", e.target.value)}
-          className="h-9 rounded-lg border-none bg-surface-card px-3 pr-8 text-sm font-medium text-white ring-1 ring-border focus:ring-primary"
-        >
-          <option value="all">All Sectors</option>
-          {sectors.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+        <div style={{ minWidth: '160px' }}>
+          <Select
+            size={SELECT_SIZE.compact}
+            clearable={false}
+            searchable={false}
+            options={sectorOptions}
+            value={[sectorOptions.find((o) => o.id === filters.sector) || sectorOptions[0]]}
+            onChange={({ value }) => {
+              if (value.length > 0) update("sector", value[0].id as string);
+            }}
+            overrides={darkSelectOverrides}
+          />
+        </div>
       </div>
 
       {/* Price Range */}
@@ -52,16 +156,19 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
         <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
           Price Range
         </label>
-        <select
-          value={filters.priceRange}
-          onChange={(e) => update("priceRange", e.target.value)}
-          className="h-9 rounded-lg border-none bg-surface-card px-3 pr-8 text-sm font-medium text-white ring-1 ring-border focus:ring-primary"
-        >
-          <option value="all">Any Price</option>
-          <option value="under-1000">Under $1,000/mo</option>
-          <option value="1000-2000">$1,000 - $2,000/mo</option>
-          <option value="2000-plus">$2,000+/mo</option>
-        </select>
+        <div style={{ minWidth: '180px' }}>
+          <Select
+            size={SELECT_SIZE.compact}
+            clearable={false}
+            searchable={false}
+            options={priceOptions}
+            value={[priceOptions.find((o) => o.id === filters.priceRange) || priceOptions[0]]}
+            onChange={({ value }) => {
+              if (value.length > 0) update("priceRange", value[0].id as string);
+            }}
+            overrides={darkSelectOverrides}
+          />
+        </div>
       </div>
 
       {/* Sort By */}
@@ -69,16 +176,19 @@ export default function FilterBar({ onFilter, sectors }: FilterBarProps) {
         <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
           Sort By
         </label>
-        <select
-          value={filters.sortBy}
-          onChange={(e) => update("sortBy", e.target.value)}
-          className="h-9 rounded-lg border-none bg-surface-card px-3 pr-8 text-sm font-medium text-white ring-1 ring-border focus:ring-primary"
-        >
-          <option value="price-asc">Price (Low-High)</option>
-          <option value="price-desc">Price (High-Low)</option>
-          <option value="radiation">Radiation Level</option>
-          <option value="oxygen">Oxygen Quality</option>
-        </select>
+        <div style={{ minWidth: '180px' }}>
+          <Select
+            size={SELECT_SIZE.compact}
+            clearable={false}
+            searchable={false}
+            options={sortOptions}
+            value={[sortOptions.find((o) => o.id === filters.sortBy) || sortOptions[0]]}
+            onChange={({ value }) => {
+              if (value.length > 0) update("sortBy", value[0].id as string);
+            }}
+            overrides={darkSelectOverrides}
+          />
+        </div>
       </div>
 
       {/* Decorative tag */}

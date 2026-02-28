@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { Button, KIND, SIZE } from "baseui/button";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: "\u25A3" },
@@ -91,13 +92,42 @@ export default function Sidebar() {
 
       {/* Bottom: Logout */}
       <div className="border-t border-[#2b2839] px-3 py-4">
-        <button
+        <Button
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-accent-red/10 hover:text-accent-red"
+          kind={KIND.secondary}
+          size={SIZE.compact}
+          startEnhancer={() => <span className="text-base leading-none">{"\u2190"}</span>}
+          overrides={{
+            BaseButton: {
+              style: {
+                width: '100%',
+                justifyContent: 'flex-start',
+                backgroundColor: 'transparent',
+                color: '#71717a',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                paddingLeft: '0.75rem',
+                paddingRight: '0.75rem',
+                paddingTop: '0.625rem',
+                paddingBottom: '0.625rem',
+                borderTopLeftRadius: '0.5rem',
+                borderTopRightRadius: '0.5rem',
+                borderBottomLeftRadius: '0.5rem',
+                borderBottomRightRadius: '0.5rem',
+                borderTopWidth: '0',
+                borderRightWidth: '0',
+                borderBottomWidth: '0',
+                borderLeftWidth: '0',
+                ':hover': {
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                },
+              },
+            },
+          }}
         >
-          <span className="text-base leading-none">{"\u2190"}</span>
           Logout
-        </button>
+        </Button>
       </div>
     </aside>
   );

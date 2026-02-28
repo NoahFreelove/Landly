@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { rateNeighbor } from "@/lib/api";
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+} from "baseui/modal";
+import { Button, KIND, SIZE as BUTTON_SIZE } from "baseui/button";
+import { Select } from "baseui/select";
 
 interface RatingModalProps {
   isOpen: boolean;
@@ -83,8 +90,6 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
-
   // Filter out current user from neighbor list
   const availableNeighbors = NEIGHBORS.filter(
     (n) => n.citizen_id !== user?.citizen_id
@@ -122,16 +127,60 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
     onClose();
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={handleClose}
-      />
+  const neighborOptions = [
+    { id: "", label: "-- Choose neighbor --" },
+    ...availableNeighbors.map((n) => ({ id: n.citizen_id, label: n.citizen_id })),
+  ];
 
-      {/* Modal */}
-      <div className="relative bg-surface-card border border-[#2b2839] rounded-lg w-full max-w-md mx-4 shadow-2xl shadow-black/50">
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      overrides={{
+        Root: {
+          style: {
+            zIndex: 50,
+          },
+        },
+        Dialog: {
+          style: {
+            backgroundColor: '#1d1c27',
+            borderTopColor: '#2b2839',
+            borderRightColor: '#2b2839',
+            borderBottomColor: '#2b2839',
+            borderLeftColor: '#2b2839',
+            borderTopWidth: '1px',
+            borderRightWidth: '1px',
+            borderBottomWidth: '1px',
+            borderLeftWidth: '1px',
+            borderTopStyle: 'solid',
+            borderRightStyle: 'solid',
+            borderBottomStyle: 'solid',
+            borderLeftStyle: 'solid',
+            borderTopLeftRadius: '0.5rem',
+            borderTopRightRadius: '0.5rem',
+            borderBottomLeftRadius: '0.5rem',
+            borderBottomRightRadius: '0.5rem',
+            maxWidth: '28rem',
+            width: '100%',
+            overflow: 'hidden',
+            padding: '0',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          },
+        },
+        DialogContainer: {
+          style: {
+            backdropFilter: 'blur(4px)',
+          },
+        },
+        Close: {
+          style: {
+            display: 'none',
+          },
+        },
+      }}
+    >
+      <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#2b2839] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -185,12 +234,41 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
               <p className="text-xs text-zinc-500 max-w-xs">
                 Social credit has been adjusted accordingly.
               </p>
-              <button
+              <Button
                 onClick={handleClose}
-                className="mt-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-300 bg-white/5 border border-[#2b2839] rounded hover:bg-white/10 transition-colors"
+                kind={KIND.secondary}
+                size={BUTTON_SIZE.compact}
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      marginTop: '0.5rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderTopColor: '#2b2839',
+                      borderRightColor: '#2b2839',
+                      borderBottomColor: '#2b2839',
+                      borderLeftColor: '#2b2839',
+                      borderTopWidth: '1px',
+                      borderRightWidth: '1px',
+                      borderBottomWidth: '1px',
+                      borderLeftWidth: '1px',
+                      borderTopStyle: 'solid',
+                      borderRightStyle: 'solid',
+                      borderBottomStyle: 'solid',
+                      borderLeftStyle: 'solid',
+                      color: '#d4d4d8',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      ':hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    },
+                  },
+                }}
               >
                 Dismiss
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -199,18 +277,95 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
                 <label className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
                   Select Subject
                 </label>
-                <select
-                  value={selectedNeighbor}
-                  onChange={(e) => setSelectedNeighbor(e.target.value)}
-                  className="bg-surface-page border border-[#2b2839] rounded px-3 py-2 text-sm text-zinc-200 font-mono focus:outline-none focus:border-primary-light transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="">-- Choose neighbor --</option>
-                  {availableNeighbors.map((n) => (
-                    <option key={n.citizen_id} value={n.citizen_id}>
-                      {n.citizen_id}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  clearable={false}
+                  searchable={false}
+                  options={neighborOptions}
+                  value={selectedNeighbor ? [neighborOptions.find((o) => o.id === selectedNeighbor)!] : []}
+                  placeholder="-- Choose neighbor --"
+                  onChange={({ value }) => {
+                    if (value.length > 0 && value[0].id !== "") {
+                      setSelectedNeighbor(value[0].id as string);
+                    } else {
+                      setSelectedNeighbor("");
+                    }
+                  }}
+                  overrides={{
+                    Root: {
+                      style: {
+                        backgroundColor: 'transparent',
+                      },
+                    },
+                    ControlContainer: {
+                      style: {
+                        backgroundColor: '#131022',
+                        borderTopColor: '#2b2839',
+                        borderRightColor: '#2b2839',
+                        borderBottomColor: '#2b2839',
+                        borderLeftColor: '#2b2839',
+                        borderTopWidth: '1px',
+                        borderRightWidth: '1px',
+                        borderBottomWidth: '1px',
+                        borderLeftWidth: '1px',
+                        borderTopStyle: 'solid' as const,
+                        borderRightStyle: 'solid' as const,
+                        borderBottomStyle: 'solid' as const,
+                        borderLeftStyle: 'solid' as const,
+                        borderTopLeftRadius: '0.25rem',
+                        borderTopRightRadius: '0.25rem',
+                        borderBottomLeftRadius: '0.25rem',
+                        borderBottomRightRadius: '0.25rem',
+                      },
+                    },
+                    ValueContainer: {
+                      style: {
+                        color: '#e4e4e7',
+                        fontSize: '0.875rem',
+                        fontFamily: 'monospace',
+                      },
+                    },
+                    SingleValue: {
+                      style: {
+                        color: '#e4e4e7',
+                      },
+                    },
+                    Dropdown: {
+                      style: {
+                        backgroundColor: '#131022',
+                        borderTopColor: '#2b2839',
+                        borderRightColor: '#2b2839',
+                        borderBottomColor: '#2b2839',
+                        borderLeftColor: '#2b2839',
+                      },
+                    },
+                    DropdownListItem: {
+                      style: {
+                        color: '#e4e4e7',
+                        backgroundColor: '#131022',
+                        ':hover': {
+                          backgroundColor: '#2b2839',
+                        },
+                      },
+                    },
+                    OptionContent: {
+                      style: {
+                        color: '#e4e4e7',
+                        fontSize: '0.875rem',
+                        fontFamily: 'monospace',
+                      },
+                    },
+                    SelectArrow: {
+                      style: {
+                        color: '#71717a',
+                      },
+                    },
+                    Placeholder: {
+                      style: {
+                        color: '#71717a',
+                      },
+                    },
+                  }}
+                />
               </div>
 
               {/* Rating categories */}
@@ -243,54 +398,63 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
               )}
 
               {/* Submit */}
-              <button
+              <Button
                 onClick={handleSubmit}
                 disabled={!canSubmit || submitting}
-                className={`w-full py-2.5 rounded text-xs font-bold uppercase tracking-wider transition-all ${
-                  canSubmit && !submitting
-                    ? "bg-primary text-white hover:bg-primary-light shadow-lg shadow-primary/20"
-                    : "bg-white/5 text-zinc-600 cursor-not-allowed"
-                }`}
+                isLoading={submitting}
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      width: '100%',
+                      paddingTop: '0.625rem',
+                      paddingBottom: '0.625rem',
+                      borderTopLeftRadius: '0.25rem',
+                      borderTopRightRadius: '0.25rem',
+                      borderBottomLeftRadius: '0.25rem',
+                      borderBottomRightRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      ...(canSubmit && !submitting
+                        ? {
+                            backgroundColor: '#3211d4',
+                            color: '#ffffff',
+                            boxShadow: '0 10px 15px -3px rgba(50, 17, 212, 0.2)',
+                            ':hover': {
+                              backgroundColor: '#4422e5',
+                            },
+                          }
+                        : {
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            color: '#52525b',
+                            cursor: 'not-allowed',
+                          }),
+                    },
+                  },
+                }}
               >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin w-3.5 h-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Processing...
-                  </span>
-                ) : (
-                  "Submit Evaluation"
-                )}
-              </button>
+                {submitting ? "Processing..." : "Submit Evaluation"}
+              </Button>
             </>
           )}
         </div>
+      </ModalBody>
 
-        {/* Footer */}
-        <div className="px-6 py-2.5 border-t border-[#2b2839] bg-white/[0.01]">
-          <p className="text-[9px] text-zinc-600 italic">
-            * All evaluations are anonymous and permanently recorded. Retaliatory
-            ratings may result in social credit penalties.
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* Footer */}
+      <ModalFooter
+        style={{
+          padding: '0.625rem 1.5rem',
+          borderTop: '1px solid #2b2839',
+          backgroundColor: 'rgba(255, 255, 255, 0.01)',
+          margin: 0,
+        }}
+      >
+        <p className="text-[9px] text-zinc-600 italic">
+          * All evaluations are anonymous and permanently recorded. Retaliatory
+          ratings may result in social credit penalties.
+        </p>
+      </ModalFooter>
+    </Modal>
   );
 }

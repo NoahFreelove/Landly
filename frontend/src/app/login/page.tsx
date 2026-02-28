@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { Button, SIZE as BUTTON_SIZE } from "baseui/button";
+import { Input } from "baseui/input";
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -34,6 +36,43 @@ export default function LoginPage() {
     }
   };
 
+  const inputOverrides = {
+    Root: {
+      style: {
+        backgroundColor: '#131022',
+        borderTopColor: '#2b2839',
+        borderRightColor: '#2b2839',
+        borderBottomColor: '#2b2839',
+        borderLeftColor: '#2b2839',
+        borderTopWidth: '1px',
+        borderRightWidth: '1px',
+        borderBottomWidth: '1px',
+        borderLeftWidth: '1px',
+        borderTopStyle: 'solid' as const,
+        borderRightStyle: 'solid' as const,
+        borderBottomStyle: 'solid' as const,
+        borderLeftStyle: 'solid' as const,
+        borderTopLeftRadius: '0.5rem',
+        borderTopRightRadius: '0.5rem',
+        borderBottomLeftRadius: '0.5rem',
+        borderBottomRightRadius: '0.5rem',
+      },
+    },
+    Input: {
+      style: {
+        color: '#e4e4e7',
+        backgroundColor: '#131022',
+        fontSize: '0.875rem',
+        '::placeholder': { color: '#52525b' },
+      },
+    },
+    InputContainer: {
+      style: {
+        backgroundColor: '#131022',
+      },
+    },
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface-page px-4">
       <div className="w-full max-w-md space-y-8">
@@ -62,15 +101,15 @@ export default function LoginPage() {
               >
                 Citizen ID
               </label>
-              <input
+              <Input
                 id="citizen_id"
                 type="text"
                 value={citizenId}
-                onChange={(e) => setCitizenId(e.target.value)}
+                onChange={(e) => setCitizenId((e.target as HTMLInputElement).value)}
                 required
                 autoComplete="username"
                 placeholder="CZ-XXXX"
-                className="block w-full rounded-lg border border-[#2b2839] bg-surface-page px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
+                overrides={inputOverrides}
               />
             </div>
 
@@ -82,15 +121,15 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
                 required
                 autoComplete="current-password"
-                placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-                className="block w-full rounded-lg border border-[#2b2839] bg-surface-page px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
+                placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+                overrides={inputOverrides}
               />
             </div>
 
@@ -102,20 +141,38 @@ export default function LoginPage() {
             )}
 
             {/* Submit */}
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-lg bg-primary py-3 text-sm font-semibold uppercase tracking-[0.15em] text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={isSubmitting}
+              overrides={{
+                BaseButton: {
+                  style: {
+                    width: '100%',
+                    backgroundColor: '#3211d4',
+                    borderTopLeftRadius: '0.5rem',
+                    borderTopRightRadius: '0.5rem',
+                    borderBottomLeftRadius: '0.5rem',
+                    borderBottomRightRadius: '0.5rem',
+                    paddingTop: '0.75rem',
+                    paddingBottom: '0.75rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    ':hover': {
+                      backgroundColor: '#2a0eb3',
+                    },
+                    ':disabled': {
+                      opacity: 0.5,
+                      cursor: 'not-allowed',
+                    },
+                  },
+                },
+              }}
             >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Verifying...
-                </span>
-              ) : (
-                "Authenticate"
-              )}
-            </button>
+              {isSubmitting ? "Verifying..." : "Authenticate"}
+            </Button>
           </form>
         </div>
 

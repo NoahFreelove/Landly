@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import type { Unit } from "@/lib/types";
 import { applyForUnit } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import {
+  Modal,
+  ModalBody,
+} from "baseui/modal";
+import { Button } from "baseui/button";
+import { ProgressBar } from "baseui/progress-bar";
 
 interface KlarnaCheckoutProps {
   unit: Unit | null;
@@ -82,7 +88,7 @@ export default function KlarnaCheckout({
     }
   }, [step, progress, handleApproval]);
 
-  if (!isOpen || !unit) return null;
+  if (!unit) return null;
 
   const installmentPayment = (
     (unit.monthly_rent_usd * selectedPlan * 1.35) /
@@ -90,23 +96,56 @@ export default function KlarnaCheckout({
   ).toFixed(2);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-surface-card shadow-2xl ring-1 ring-accent-klarna/20">
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-surface-elevated text-zinc-400 ring-1 ring-border transition-colors hover:text-white"
-        >
-          X
-        </button>
-
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      overrides={{
+        Root: {
+          style: {
+            zIndex: 60,
+          },
+        },
+        Dialog: {
+          style: {
+            backgroundColor: '#1d1c27',
+            borderTopColor: 'rgba(255, 176, 205, 0.2)',
+            borderRightColor: 'rgba(255, 176, 205, 0.2)',
+            borderBottomColor: 'rgba(255, 176, 205, 0.2)',
+            borderLeftColor: 'rgba(255, 176, 205, 0.2)',
+            borderTopWidth: '1px',
+            borderRightWidth: '1px',
+            borderBottomWidth: '1px',
+            borderLeftWidth: '1px',
+            borderTopStyle: 'solid',
+            borderRightStyle: 'solid',
+            borderBottomStyle: 'solid',
+            borderLeftStyle: 'solid',
+            borderTopLeftRadius: '1rem',
+            borderTopRightRadius: '1rem',
+            borderBottomLeftRadius: '1rem',
+            borderBottomRightRadius: '1rem',
+            maxWidth: '28rem',
+            width: '100%',
+            overflow: 'hidden',
+            padding: '0',
+          },
+        },
+        DialogContainer: {
+          style: {
+            backdropFilter: 'blur(12px)',
+          },
+        },
+        Close: {
+          style: {
+            color: '#a1a1aa',
+            ':hover': {
+              color: '#ffffff',
+            },
+          },
+        },
+      }}
+    >
+      <ModalBody style={{ padding: 0, margin: 0 }}>
         {/* Klarna branding header */}
         <div className="border-b border-accent-klarna/20 bg-gradient-to-r from-accent-klarna/10 via-accent-klarna/5 to-transparent px-6 py-4">
           <div className="flex items-center gap-3">
@@ -211,12 +250,31 @@ export default function KlarnaCheckout({
                 be reported to the Citizen Compliance Bureau.
               </p>
 
-              <button
+              <Button
                 onClick={() => setStep("verification")}
-                className="flex h-11 items-center justify-center rounded-xl bg-accent-klarna font-bold uppercase tracking-wide text-black transition-all hover:brightness-110 active:scale-[0.98]"
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      width: '100%',
+                      height: '2.75rem',
+                      backgroundColor: '#ffb0cd',
+                      color: '#000000',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      borderTopLeftRadius: '0.75rem',
+                      borderTopRightRadius: '0.75rem',
+                      borderBottomLeftRadius: '0.75rem',
+                      borderBottomRightRadius: '0.75rem',
+                      ':hover': {
+                        backgroundColor: '#ffc4da',
+                      },
+                    },
+                  },
+                }}
               >
                 Continue
-              </button>
+              </Button>
             </div>
           )}
 
@@ -242,10 +300,43 @@ export default function KlarnaCheckout({
               </div>
 
               {/* Progress bar */}
-              <div className="w-full overflow-hidden rounded-full bg-border">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-accent-klarna/60 to-accent-klarna transition-all duration-100 ease-linear"
-                  style={{ width: `${progress}%` }}
+              <div className="w-full">
+                <ProgressBar
+                  value={progress}
+                  maxValue={100}
+                  minValue={0}
+                  showLabel={false}
+                  overrides={{
+                    BarContainer: {
+                      style: {
+                        backgroundColor: '#2b2839',
+                        borderTopLeftRadius: '9999px',
+                        borderTopRightRadius: '9999px',
+                        borderBottomLeftRadius: '9999px',
+                        borderBottomRightRadius: '9999px',
+                        overflow: 'hidden',
+                        marginLeft: '0',
+                        marginRight: '0',
+                      },
+                    },
+                    Bar: {
+                      style: {
+                        borderTopLeftRadius: '9999px',
+                        borderTopRightRadius: '9999px',
+                        borderBottomLeftRadius: '9999px',
+                        borderBottomRightRadius: '9999px',
+                      },
+                    },
+                    BarProgress: {
+                      style: {
+                        background: 'linear-gradient(90deg, rgba(255,176,205,0.6) 0%, #ffb0cd 100%)',
+                        borderTopLeftRadius: '9999px',
+                        borderTopRightRadius: '9999px',
+                        borderBottomLeftRadius: '9999px',
+                        borderBottomRightRadius: '9999px',
+                      },
+                    },
+                  }}
                 />
               </div>
 
@@ -331,20 +422,39 @@ export default function KlarnaCheckout({
                 </p>
               )}
 
-              <button
+              <Button
                 onClick={() => {
                   onComplete();
                   onClose();
                 }}
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-accent-klarna font-bold uppercase tracking-wide text-black transition-all hover:brightness-110 active:scale-[0.98]"
+                overrides={{
+                  BaseButton: {
+                    style: {
+                      width: '100%',
+                      height: '2.75rem',
+                      backgroundColor: '#ffb0cd',
+                      color: '#000000',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      borderTopLeftRadius: '0.75rem',
+                      borderTopRightRadius: '0.75rem',
+                      borderBottomLeftRadius: '0.75rem',
+                      borderBottomRightRadius: '0.75rem',
+                      ':hover': {
+                        backgroundColor: '#ffc4da',
+                      },
+                    },
+                  },
+                }}
               >
                 Accept Terms
-              </button>
+              </Button>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </ModalBody>
+    </Modal>
   );
 }
 
