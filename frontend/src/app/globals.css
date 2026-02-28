@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --background: #131022;
+  --foreground: #e4e4e7;
+  --surface: #1d1c27;
+  --surface-elevated: #1c182f;
+  --border: #2b2839;
+  --primary: #3211d4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Space Grotesk", system-ui, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* Utility: uppercase tracked labels (surveillance aesthetic) */
+@layer utilities {
+  .label-tracked {
+    @apply text-xs font-medium uppercase tracking-[0.15em] text-zinc-400;
+  }
+}

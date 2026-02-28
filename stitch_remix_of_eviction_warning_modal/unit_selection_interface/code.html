@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LifeLink Housing - Unit Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#3211d4",
+                "background-light": "#f6f6f8",
+                "background-dark": "#131022",
+              },
+              fontFamily: {
+                "display": ["Space Grotesk", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Space Grotesk", sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display selection:bg-primary selection:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header / Nav -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#1a1729]/50 backdrop-blur-md px-10 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900 dark:text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase">LifeLink Housing</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6 border-l border-slate-300 dark:border-slate-700 pl-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium uppercase tracking-wide" href="#">Sectors</a>
+<a class="text-primary text-sm font-bold uppercase tracking-wide border-b-2 border-primary" href="#">My Assignment</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium uppercase tracking-wide" href="#">Social Score</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<!-- Global Search -->
+<label class="hidden lg:flex flex-col min-w-40 !h-10 max-w-64 group">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full ring-1 ring-slate-300 dark:ring-slate-700 focus-within:ring-primary dark:focus-within:ring-primary transition-all bg-slate-100 dark:bg-[#201d32]">
+<div class="text-slate-400 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent border-none focus:ring-0 text-sm font-medium placeholder:text-slate-400 dark:text-white" placeholder="Global Search" value=""/>
+</div>
+</label>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-300 dark:border-slate-700">
+<div class="text-right hidden sm:block">
+<p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Citizen ID</p>
+<p class="text-sm font-medium font-mono text-primary">8849-AK-92</p>
+</div>
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/50" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA2HWaBgYO-0kFfcI13hu31jW81ldWZY4mN9twmG-umKDJJhfE7B4ODWVmuYR7VSmfkTT9hmaozvG0cTjYqCab4-ZrN9ONO8EwTQK9PubF9Ez8_IpCzftMinvp0NO7KQVGfFtvpMeVcZ9dB1-4FBO5V6mVt6exOlmSqeZIEXA-h9ce4iv0n8ZPVfg9Kox-ffdKpzLuTbG1XgEbCGFiL-Oacu_98cBmtiPqU3MDWucybDWRonZCmEWQsP0k1EGVONHR5JyY1EJWGbmyA");'></div>
+<div class="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-white dark:border-[#1a1729]"></div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 justify-center py-8 px-4 sm:px-8">
+<div class="layout-content-container flex flex-col w-full max-w-[1200px] flex-1">
+<!-- Search & Filter Bar -->
+<div class="mb-10 flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-2 max-w-2xl">
+<h1 class="text-4xl md:text-5xl font-bold tracking-tighter text-slate-900 dark:text-white">
+<span class="text-primary">Available</span> Life Pods
+                                </h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg">Secure your standardized living unit today. Compliance is mandatory for all citizens.</p>
+</div>
+<!-- Sector Search -->
+<label class="flex flex-col w-full md:w-80 h-12">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full bg-white dark:bg-[#201d32] shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus-within:ring-2 focus-within:ring-primary transition-all">
+<div class="text-slate-400 flex items-center justify-center pl-4">
+<span class="material-symbols-outlined">location_searching</span>
+</div>
+<input class="w-full min-w-0 flex-1 bg-transparent border-none focus:ring-0 text-base font-medium placeholder:text-slate-400 dark:text-white px-3" placeholder="Search your sector" value=""/>
+</div>
+</label>
+</div>
+<!-- Filters -->
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white pl-4 pr-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+<p class="text-sm font-bold uppercase tracking-wide">All Sectors</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#201d32] ring-1 ring-slate-200 dark:ring-slate-700 pl-4 pr-3 hover:bg-slate-50 dark:hover:bg-[#2b2839] transition-colors">
+<p class="text-slate-700 dark:text-slate-200 text-sm font-medium">Sector 7</p>
+<span class="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#201d32] ring-1 ring-slate-200 dark:ring-slate-700 pl-4 pr-3 hover:bg-slate-50 dark:hover:bg-[#2b2839] transition-colors">
+<p class="text-slate-700 dark:text-slate-200 text-sm font-medium">Low Radiation</p>
+<span class="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#201d32] ring-1 ring-slate-200 dark:ring-slate-700 pl-4 pr-3 hover:bg-slate-50 dark:hover:bg-[#2b2839] transition-colors">
+<p class="text-slate-700 dark:text-slate-200 text-sm font-medium">High Altitude</p>
+<span class="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#201d32] ring-1 ring-slate-200 dark:ring-slate-700 pl-4 pr-3 hover:bg-slate-50 dark:hover:bg-[#2b2839] transition-colors ml-auto">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">filter_list</span>
+<p class="text-slate-700 dark:text-slate-200 text-sm font-medium">Advanced Filter</p>
+</button>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-green-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 750+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Minimalist futuristic apartment interior" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDZ4F_ZxA0SvZ0Q9A3ZyqQe_lA1OODuAfrXp-4DX9-4IbAePUfkPlx22qZ04ZO-8aaT4HuJ1f6JkqR_XhEJexJsTBdokF7_we8t6gn50aWs5jk65JBfKdCDaHVETWb-XWdgjc-Y_grt7hJXw2HMQAiKOUvln4mLTsQOXT5L9CSS7PwhdcI8Am3GenR7dxVm0DzIfPojlk1YwL6ik4BUpUUcRfmZbvxI7MK1cYysvMJPYOZ5H9j2fQQwH927oKfSDCIoZAN5DFYtQhRu");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 74-A</h3>
+<p class="text-slate-300 text-sm">Sector 7 • Level 42</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">120 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">2</div>
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">P</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-yellow-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 600+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Sterile white apartment pod" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBLlRCmwHAyaijuTAZeQdY2H1xtGAIOU-KYyJO-dEmCYBa3mFllSdZ_zdZVjSaU-D6fPqlG0HkG-mxaBN2EAGI_v97VZFZYJEDK9LWZpqBQiM99j6pHbJDpYto3nyAFhwKWkReXowZk1s2XKM7ACK5hq21U88fyTA-nZmBYreypfRO6AaD05yWiCO0Vp7PfnVyrEu4-FuML87y_SJY3C0lPn3bUFPQYt09nItl2JpCNeclcvVlzuq_SB_OZ_RGcz0G4rOmXEO4H5Ql1");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 92-B</h3>
+<p class="text-slate-300 text-sm">Sector 4 • Level 12</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">110 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">1</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-green-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 800+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Modern high rise apartment interior" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFr3A0VDq_3NF8wmnCNY5GgVtm20ws90Qid5JEJr1JRmF6nMxXcZBpGOj7XG_VGgJ_1Eqn_tC767xtB8hqVTe1KUNJEdsFUixphvjAcVCZINzpTRbjdB56deGEIiIDlLxtHELj4Mys0nbzSJ6xgf44p-VcYx6Q6bz97hLvH2tw4ZcrNrJbQDzu601ZVeAHE51Ik2Cweop24mXCQ0ZTMu1Q0VMta0ykHWQWvvx9MeCeA2EVhhweqldKyE4ZJ7QEZGs0sm92HYIEY1sb");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 10-X</h3>
+<p class="text-slate-300 text-sm">Sector 1 • Penthouse</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">145 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">1</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-orange-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 500+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Compact minimalist living space" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmcfDT60Bh6gomFGNa24lfN6XzdW7keJYAA1j2veOts3PTgovRTLh2mfp2OGavUXJWpydp8UJBE6xFJnReoif-8_tYbbD_-2tH-crpAVyj0mq8maphZuvwcU6Ob2cYYmcU9cDJYy5vXmWW-R1tHMjgzTeX9d9SS6sK3cP22y_GYKL9YYurbLsm4dRdmFcXRiMXGN_SmWGT3pk-bNLwrZGLGMEXyWenn32APfui29Vvev4T5k6YjbaP2sGcCaGiAj7moJB2dKODxmRE");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 33-C</h3>
+<p class="text-slate-300 text-sm">Sector 9 • Sub-Level</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">95 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">2</div>
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">C</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-green-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 700+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Cozy modern bedroom pod" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBl0AVv5nokl1xe6DkOC5D-tCKxs-41tTOc66z9J1l77Tq73iTE09txk0oYaaU0NnCzmmfxFbfDTLllMS2FNVFjXq-Owr8ItbluDHRrJ4TrarX8QswST_N3RhB6LSLVheC_I5i5cZMiq_iqIhnD8Mu7O55zlr6VOOVYGqmwwMlWkEPeiB2kFuW1cC4_CWn3vBddKrCwDQJudy-Gt3ym_X5SzPI5LDNBg87i14pjw9tw2oumPlDh6-dbfrIxfDNXp6GwOXC4MrMjO3af");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 55-D</h3>
+<p class="text-slate-300 text-sm">Sector 3 • Garden View</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">130 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">1</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group relative flex flex-col bg-white dark:bg-[#201d32] rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-primary/50 dark:hover:ring-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden">
+<div class="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-yellow-400 text-[14px]">shield</span>
+<span class="text-xs font-bold text-white uppercase tracking-wider">Score 650+</span>
+</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105" data-alt="Small efficient pod unit" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCsaIcePkugOlVDACgTk2kRVAw_x6TE7P3BnWZBPwqkAvr0xDMnBDK7cTtrHX-km62Qzhwu21Tic4ap0tSsZA7aU8u4DhO-4_qmrHGjRfjuWmrj1gw0W-3u-1pZeA9sKArHziTAl-U8pfV8NIQJ7nEjJQjuL2FgBfrRgWDXnNLqjP5MQdODaY8qZEV0WlHUYET_blJga9ZeTzIEYCwyho4jXoC9tm03LIAM6wVvIlR43PU9ChXDD-haEvaeBo33VQ3jserJPnW2TH1R");'>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-[#201d32] via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-4">
+<h3 class="text-white text-xl font-bold tracking-tight">Pod 12-E</h3>
+<p class="text-slate-300 text-sm">Sector 2 • Near Transit</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4 flex-1">
+<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 pb-4">
+<div class="flex flex-col">
+<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Weekly Rent</span>
+<span class="text-2xl font-bold text-slate-900 dark:text-white">115 <span class="text-sm font-normal text-slate-500">Credits</span></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-[#201d32] flex items-center justify-center text-[10px] font-bold">1</div>
+</div>
+<span class="text-xs text-slate-500">Occupancy</span>
+</div>
+</div>
+<div class="flex gap-2 mt-auto">
+<button class="flex-1 h-10 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 dark:text-pink-400 border border-pink-500/20 text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Klarna Debt
+                                    </button>
+<button class="flex-1 h-10 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        Apply
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

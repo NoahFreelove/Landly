@@ -1,0 +1,58 @@
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Production builds
+frontend/build/
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/.env*.local
+backend/.env
+
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+backend/.venv/
+backend/venv/
+*.egg-info/
+dist/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+frontend/coverage/
+.pytest_cache/
+backend/.pytest_cache/
