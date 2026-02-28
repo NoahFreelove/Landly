@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { getDashboard, getNotifications } from "@/lib/api";
 import RatingModal from "@/components/dashboard/RatingModal";
@@ -13,6 +13,8 @@ import NotificationFeed from "@/components/dashboard/NotificationFeed";
 import AdBanner from "@/components/dashboard/AdBanner";
 import GentrificationBar from "@/components/dashboard/GentrificationBar";
 import EvictionWidget from "@/components/dashboard/EvictionWidget";
+import TotalDebtCard from "@/components/dashboard/TotalDebtCard";
+import PaymentModal from "@/components/dashboard/PaymentModal";
 
 // Skeleton components for loading state
 function SkeletonCard({ className = "" }: { className?: string }) {
@@ -66,27 +68,28 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [ratingOpen, setRatingOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
+  const refreshDashboard = useCallback(async () => {
+    if (!token) return;
+    try {
+      const [dashboard, notifs] = await Promise.all([
+        getDashboard(token),
+        getNotifications(token).catch(() => []),
+      ]);
+      setDashData(dashboard);
+      setNotifications(notifs);
+    } catch (err: any) {
+      setError(err.message || "Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
-
-    async function fetchData() {
-      try {
-        const [dashboard, notifs] = await Promise.all([
-          getDashboard(token!),
-          getNotifications(token!).catch(() => []),
-        ]);
-        setDashData(dashboard);
-        setNotifications(notifs);
-      } catch (err: any) {
-        setError(err.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [token]);
+    refreshDashboard();
+  }, [token, refreshDashboard]);
 
   // Derive some display values
   const creditScore = dashData?.credit_score
@@ -204,6 +207,17 @@ export default function DashboardPage() {
         {/* Loading state */}
         {loading && (
           <>
+            {/* Total Debt skeleton */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6 animate-pulse">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="h-3 w-32 bg-gray-100 rounded mb-4" />
+                  <div className="h-12 w-48 bg-gray-100 rounded mb-3" />
+                  <div className="h-2 w-64 bg-gray-100 rounded" />
+                </div>
+                <div className="h-12 w-36 bg-gray-100 rounded-lg" />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <SkeletonCard />
               <SkeletonCard />
@@ -223,6 +237,13 @@ export default function DashboardPage() {
         {/* Loaded state */}
         {!loading && dashData && (
           <>
+            {/* Total Debt Card */}
+            <TotalDebtCard
+              totalDebt={dashData.total_debt}
+              breakdown={dashData.debt_breakdown}
+              onMakePayment={() => setPaymentOpen(true)}
+            />
+
             {/* Score Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <ScoreCard
@@ -457,6 +478,18 @@ export default function DashboardPage() {
 
       {/* Rating Modal */}
       <RatingModal isOpen={ratingOpen} onClose={() => setRatingOpen(false)} />
+
+      {/* Payment Modal */}
+      {dashData && (
+        <PaymentModal
+          isOpen={paymentOpen}
+          onClose={() => setPaymentOpen(false)}
+          payments={dashData.recent_payments}
+          klarnaDebts={dashData.klarna_debts}
+          totalDebt={dashData.total_debt}
+          onPaymentMade={refreshDashboard}
+        />
+      )}
     </AppLayout>
   );
 }
