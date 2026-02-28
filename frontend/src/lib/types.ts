@@ -8,6 +8,7 @@ export interface User {
   status: "compliant" | "warning" | "probation" | "eviction_pending";
   tier: "bronze" | "silver" | "gold" | "platinum";
   unit_id: number | null;
+  token_balance: number;
 }
 
 export interface LoginRequest {
@@ -62,6 +63,13 @@ export interface KlarnaDebt {
   installments: number;
   installments_paid: number;
   status: "active" | "overdue" | "completed";
+}
+
+export interface DebtBreakdown {
+  rent: number;
+  late_fees: number;
+  klarna: number;
+  interest: number;
 }
 
 export interface EvictionStatus {
@@ -120,6 +128,8 @@ export interface DashboardData {
   markets: Market[];
   notifications: Notification[];
   eviction_status: EvictionStatus;
+  total_debt: number;
+  debt_breakdown: DebtBreakdown;
   gentrification_index: number;
   credit_score: number;
   interest_rate: number;

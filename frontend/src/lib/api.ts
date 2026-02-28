@@ -108,6 +108,14 @@ export async function makePayment(
   });
 }
 
+export async function makeLumpSumPayment(token: string, amount: number) {
+  return api<any>("/api/payments/lump-sum", {
+    method: "POST",
+    body: JSON.stringify({ amount }),
+    token,
+  });
+}
+
 export async function getEvictionStatus(token: string) {
   return api<any>("/api/payments/eviction-status", { token });
 }
@@ -132,6 +140,21 @@ export async function placeBet(
 
 export async function getLeaderboard(token: string) {
   return api<any[]>("/api/markets/leaderboard", { token });
+}
+
+export async function addTokens(
+  token: string,
+  amount: number,
+  klarnaInstallments?: number
+) {
+  return api<{ new_balance: number }>("/api/markets/wallet/add-tokens", {
+    method: "POST",
+    body: JSON.stringify({
+      amount,
+      klarna_installments: klarnaInstallments ?? null,
+    }),
+    token,
+  });
 }
 
 // ---- Ratings ----
