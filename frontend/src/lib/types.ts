@@ -9,6 +9,10 @@ export interface User {
   tier: "bronze" | "silver" | "gold" | "platinum";
   unit_id: number | null;
   token_balance: number;
+  default_plan_type: "standard" | "flexible" | "freedom";
+  autopay_enabled: boolean;
+  landly_points: number;
+  referral_code: string | null;
 }
 
 export interface LoginRequest {
@@ -63,6 +67,10 @@ export interface KlarnaDebt {
   installments: number;
   installments_paid: number;
   status: "active" | "overdue" | "completed";
+  rent_month: string | null;
+  plan_type: string | null;
+  apr: number;
+  created_at: string | null;
 }
 
 export interface DebtBreakdown {
@@ -119,6 +127,27 @@ export interface Notification {
   created_at: string;
 }
 
+// ---- Debt Spiral ----
+export interface DebtSpiralPlan {
+  id: number;
+  rent_month: string | null;
+  plan_type: string | null;
+  total_amount: number;
+  installments: number;
+  installments_paid: number;
+  installment_amount: number;
+  remaining_balance: number;
+  apr: number;
+  status: string;
+}
+
+export interface DebtSpiralData {
+  plans: DebtSpiralPlan[];
+  active_count: number;
+  this_month_total: number;
+  projected_debt_free: string;
+}
+
 // ---- Dashboard ----
 export interface DashboardData {
   user: User;
@@ -130,9 +159,12 @@ export interface DashboardData {
   eviction_status: EvictionStatus;
   total_debt: number;
   debt_breakdown: DebtBreakdown;
-  gentrification_index: number;
+  debt_spiral: DebtSpiralData;
   credit_score: number;
   interest_rate: number;
+  autopay_enabled: boolean;
+  landly_points: number;
+  referral_code: string | null;
 }
 
 // Tier display names

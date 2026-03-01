@@ -203,3 +203,51 @@ export async function advanceDay(token: string) {
 export async function advanceMonth(token: string) {
   return api<any>("/api/admin/advance-month", { method: "POST", token });
 }
+
+// ---- Rent Plans ----
+export async function selectRentPlan(token: string, plan_type: string) {
+  return api<any>("/api/payments/select-rent-plan", {
+    method: "POST",
+    body: JSON.stringify({ plan_type }),
+    token,
+  });
+}
+
+export async function getActivePlans(token: string) {
+  return api<any>("/api/payments/active-plans", { token });
+}
+
+// ---- AutoPay ----
+export async function toggleAutoPay(token: string, enabled: boolean) {
+  return api<any>("/api/payments/autopay", {
+    method: "POST",
+    body: JSON.stringify({ enabled }),
+    token,
+  });
+}
+
+// ---- Referral ----
+export async function getReferralCode(token: string) {
+  return api<any>("/api/payments/referral-code", { token });
+}
+
+export async function useReferral(token: string, referral_code: string) {
+  return api<any>("/api/payments/use-referral", {
+    method: "POST",
+    body: JSON.stringify({ referral_code }),
+    token,
+  });
+}
+
+// ---- Landly Points ----
+export async function getPoints(token: string) {
+  return api<any>("/api/payments/points", { token });
+}
+
+export async function redeemPoints(token: string, reward: string) {
+  return api<any>("/api/payments/points/redeem", {
+    method: "POST",
+    body: JSON.stringify({ reward }),
+    token,
+  });
+}
