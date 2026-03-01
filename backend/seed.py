@@ -1,5 +1,6 @@
 """Populate the database with realistic test data."""
 
+import random
 from datetime import datetime, timedelta, timezone
 
 from passlib.hash import bcrypt
@@ -10,6 +11,29 @@ from models import (
     Market, MarketBet, ChatMessage,
     SimulationState, Notification, TenantRating,
 )
+
+FIRST_NAMES = [
+    "Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason",
+    "Isabella", "William", "Mia", "James", "Charlotte", "Benjamin", "Amelia",
+    "Lucas", "Harper", "Henry", "Evelyn", "Alexander", "Abigail", "Daniel",
+    "Emily", "Matthew", "Elizabeth", "Jackson", "Sofia", "Sebastian", "Avery",
+    "Aiden", "Ella", "Owen", "Scarlett", "Samuel", "Grace", "Ryan", "Chloe",
+    "Nathan", "Victoria", "Caleb", "Riley", "Christian", "Aria", "Dylan",
+    "Lily", "Landon", "Aurora", "Isaac", "Zoey", "Gavin",
+]
+
+LAST_NAMES = [
+    "Chen", "Patel", "Kim", "Nguyen", "Rodriguez", "Martinez", "Lopez",
+    "Garcia", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson",
+    "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez",
+    "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen",
+    "King", "Wright", "Scott", "Torres", "Hill", "Flores", "Green",
+    "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+    "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker",
+]
+
+STATUSES = ["compliant", "compliant", "compliant", "warning", "warning", "probation"]
+TIERS = ["bronze", "bronze", "bronze", "silver", "silver", "gold", "platinum"]
 
 
 def seed():
@@ -167,6 +191,38 @@ def seed():
     db.flush()
 
     now = datetime.now(timezone.utc)
+
+    # ── Generated Users (97 more) ──────────────────────────
+    random.seed(42)
+    generated_users = []
+    used_cids = {u.citizen_id for u in users}
+    for i in range(97):
+        first = random.choice(FIRST_NAMES)
+        last = random.choice(LAST_NAMES)
+        cid = f"RES-{random.randint(1000, 9999)}"
+        while cid in used_cids:
+            cid = f"RES-{random.randint(1000, 9999)}"
+        used_cids.add(cid)
+        score = random.randint(200, 950)
+        status = random.choice(STATUSES)
+        tier = random.choice(TIERS)
+        unit = random.choice(units)
+
+        u = User(
+            citizen_id=cid,
+            name=f"{first} {last}",
+            password_hash=password,
+            social_credit_score=score,
+            trust_score=round(random.uniform(0.1, 1.0), 2),
+            status=status,
+            tier=tier,
+            unit_id=unit.id,
+            token_balance=round(random.uniform(0, 1000), 2),
+        )
+        generated_users.append(u)
+
+    db.add_all(generated_users)
+    db.flush()
 
     # ── Payments ───────────────────────────────────────────
     payments = [
@@ -397,18 +453,77 @@ def seed():
     ]
     db.add_all(notifications)
 
+    # ── Generated Payments, Klarna, Notifications ──────────
+    generated_payments = []
+    generated_klarna = []
+    generated_notifications = []
+
+    notif_templates = [
+        ("Payment Processed", "Your rent payment has been processed. Thank you.", "general"),
+        ("Community Score Update", "Your Community Score has been updated based on recent activity.", "warning"),
+        ("Noise Advisory", "Noise levels in your unit exceeded guidelines. A reminder has been logged.", "violation"),
+        ("Maintenance Scheduled", "A maintenance window has been scheduled for your building.", "maintenance"),
+        ("Lease Renewal", "Your lease renewal assessment has been initiated.", "warning"),
+        ("Payment Reminder", "A payment is approaching its due date. Please ensure timely payment.", "general"),
+    ]
+
+    for u in generated_users:
+        # 1-3 payments per user
+        for _ in range(random.randint(1, 3)):
+            ptype = random.choice(["rent", "rent", "rent", "late_fee"])
+            pstatus = random.choice(["paid", "paid", "pending", "overdue"])
+            amt = round(random.uniform(800, 4000), 2) if ptype == "rent" else round(random.uniform(25, 150), 2)
+            interest = round(random.uniform(0, 80), 2) if pstatus == "overdue" else 0.0
+            generated_payments.append(Payment(
+                user_id=u.id,
+                amount=amt,
+                payment_type=ptype,
+                status=pstatus,
+                due_date=now + timedelta(days=random.randint(-60, 30)),
+                interest_rate=round(random.uniform(0.05, 0.30), 2) if pstatus == "overdue" else 0.0,
+                accrued_interest=interest,
+            ))
+
+        # 30% chance of klarna debt
+        if random.random() < 0.3:
+            inst = random.choice([3, 4, 6, 12])
+            paid = random.randint(0, inst - 1)
+            generated_klarna.append(KlarnaDebt(
+                user_id=u.id,
+                item_name=f"Security Deposit — {random.choice(units).name}",
+                total_amount=round(random.uniform(1500, 6000), 2),
+                installments=inst,
+                installments_paid=paid,
+                status="active" if paid < inst else "completed",
+            ))
+
+        # 1-3 notifications per user
+        for _ in range(random.randint(1, 3)):
+            title, msg, cat = random.choice(notif_templates)
+            generated_notifications.append(Notification(
+                user_id=u.id,
+                title=title,
+                message=msg,
+                category=cat,
+            ))
+
+    db.add_all(generated_payments)
+    db.add_all(generated_klarna)
+    db.add_all(generated_notifications)
+
     db.commit()
     db.close()
 
+    all_users = users + generated_users
     print("Database seeded successfully.")
-    print(f"  Users:          {len(users)}")
+    print(f"  Users:          {len(all_users)}")
     print(f"  Units:          {len(units)}")
-    print(f"  Payments:       {len(payments)}")
-    print(f"  Klarna:         {len(klarna)}")
+    print(f"  Payments:       {len(payments) + len(generated_payments)}")
+    print(f"  Klarna:         {len(klarna) + len(generated_klarna)}")
     print(f"  Markets:        {len(markets)}")
     print(f"  Bets:           {len(bets)}")
     print(f"  Messages:       {len(messages)}")
-    print(f"  Notifications:  {len(notifications)}")
+    print(f"  Notifications:  {len(notifications) + len(generated_notifications)}")
     print(f"  SimulationState: 1")
     print()
     print("Test credentials:")
