@@ -364,6 +364,17 @@ export default function RatingModal({ isOpen, onClose }: RatingModalProps) {
                         color: '#9ca3af',
                       },
                     },
+                    Popover: {
+                      props: {
+                        overrides: {
+                          Body: {
+                            style: {
+                              zIndex: 70,
+                            },
+                          },
+                        },
+                      },
+                    },
                   }}
                 />
               </div>
