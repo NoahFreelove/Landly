@@ -24,6 +24,10 @@ class KlarnaDebtResponse(BaseModel):
     installments: int
     installments_paid: int
     status: str
+    rent_month: Optional[str] = None
+    plan_type: Optional[str] = None
+    apr: float = 0.24
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -54,3 +58,12 @@ class PaymentSummaryResponse(BaseModel):
     payments: list[PaymentResponse]
     klarna_debts: list[KlarnaDebtResponse]
     debt_breakdown: DebtBreakdown
+
+class RentPlanSelectRequest(BaseModel):
+    plan_type: str  # "standard", "flexible", "freedom"
+
+class AutoPayToggleRequest(BaseModel):
+    enabled: bool
+
+class PointsRedeemRequest(BaseModel):
+    reward: str  # "score_boost", "rate_reduction", "priority_maintenance"
