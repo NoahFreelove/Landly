@@ -21,6 +21,8 @@ CORPORATE_NOTICES = [
     ("Community Event", "You're invited to this month's Resident Appreciation Mixer. Attendance is optional but noted.", "general"),
 ]
 
+LATE_FEE_PER_INSTALLMENT = 25.0
+
 @router.get("/current-date", response_model=SimulationStateResponse)
 def get_current_date(db: Session = Depends(get_db)):
     state = db.query(SimulationState).first()
@@ -62,6 +64,101 @@ def advance_day(db: Session = Depends(get_db)):
             notif = Notification(user_id=target.id, title=notice[0], message=notice[1], category=notice[2])
             db.add(notif)
             events.append(f"Notification sent to {target.citizen_id}: {notice[0]}")
+
+    # Late fees for Klarna rent plans with missed installments
+    now_date = state.current_date
+    active_klarna = db.query(KlarnaDebt).filter(
+        KlarnaDebt.status == "active",
+        KlarnaDebt.rent_month.isnot(None),
+    ).all()
+
+    for debt in active_klarna:
+        if not debt.created_at:
+            continue
+        created_date = debt.created_at.date() if hasattr(debt.created_at, 'date') else debt.created_at
+        months_elapsed = max(1, (now_date - created_date).days // 30)
+        expected_paid = min(months_elapsed, debt.installments)
+        if debt.installments_paid < expected_paid:
+            # Missed installment — mark overdue and add late fee
+            debt.status = "overdue"
+            late_fee = Payment(
+                user_id=debt.user_id,
+                amount=LATE_FEE_PER_INSTALLMENT,
+                payment_type="late_fee",
+                status="pending",
+                due_date=datetime.now(timezone.utc) + timedelta(days=7),
+                interest_rate=0.0,
+                accrued_interest=0.0,
+            )
+            db.add(late_fee)
+            events.append(f"Late fee ${LATE_FEE_PER_INSTALLMENT} for {debt.item_name}")
+
+    # Late payment escalation for overdue Klarna rent plans
+    overdue_klarna = db.query(KlarnaDebt).filter(
+        KlarnaDebt.status == "overdue",
+        KlarnaDebt.rent_month.isnot(None),
+    ).all()
+
+    for debt in overdue_klarna:
+        if not debt.created_at:
+            continue
+        created_date = debt.created_at.date() if hasattr(debt.created_at, 'date') else debt.created_at
+        days_overdue = (now_date - created_date).days
+        user = db.query(User).filter(User.id == debt.user_id).first()
+        if not user:
+            continue
+
+        # Day 30: eviction — no escape
+        if days_overdue >= 30 and user.status != "eviction_pending":
+            user.status = "eviction_pending"
+            user_debts = db.query(KlarnaDebt).filter(
+                KlarnaDebt.user_id == user.id, KlarnaDebt.status.in_(["active", "overdue"])
+            ).all()
+            for d in user_debts:
+                d.apr = 0.35  # max out all rates
+            notif = Notification(user_id=user.id, title="Lease Termination Notice",
+                                 message="Eviction proceedings have been initiated for your unit.", category="warning")
+            db.add(notif)
+            events.append(f"EVICTION: {user.citizen_id} — 30+ days overdue")
+
+        # Day 14: severe penalties
+        elif days_overdue >= 14:
+            user.social_credit_score = max(0, user.social_credit_score - 50)
+            notif = Notification(user_id=user.id, title="Account In Arrears",
+                                 message="Important: Your account is in arrears. Please contact your property management team to discuss options.",
+                                 category="warning")
+            db.add(notif)
+            events.append(f"Day 14 penalty for {user.citizen_id}: -50 score")
+
+        # Day 7: all plans rate increase + referrer penalty
+        elif days_overdue >= 7:
+            user_debts = db.query(KlarnaDebt).filter(
+                KlarnaDebt.user_id == user.id, KlarnaDebt.status == "active"
+            ).all()
+            for d in user_debts:
+                d.apr = min(0.50, d.apr + 0.01)
+            user.social_credit_score = max(0, user.social_credit_score - 25)
+            # Referrer penalty
+            if user.referred_by_id:
+                referrer = db.query(User).filter(User.id == user.referred_by_id).first()
+                if referrer:
+                    referrer.social_credit_score = max(0, referrer.social_credit_score - 10)
+                    events.append(f"Referrer {referrer.citizen_id} penalized for {user.citizen_id}")
+            notif = Notification(user_id=user.id, title="Payment Required",
+                                 message="Your account requires attention. Extended non-payment may affect your housing status.",
+                                 category="warning")
+            db.add(notif)
+            events.append(f"Day 7 penalty for {user.citizen_id}: +1% all plans, -25 score")
+
+        # Day 3: rate increase on overdue plan
+        elif days_overdue >= 3:
+            debt.apr = min(0.50, debt.apr + 0.03)
+            user.social_credit_score = max(0, user.social_credit_score - 15)
+            notif = Notification(user_id=user.id, title="Payment Reminder",
+                                 message="Friendly reminder: your payment is past due. Your rate has been adjusted to reflect updated terms.",
+                                 category="warning")
+            db.add(notif)
+            events.append(f"Day 3 penalty for {user.citizen_id}: +3% on plan, -15 score")
 
     db.commit()
     return AdvanceTimeResponse(previous_date=previous, new_date=state.current_date, events=events)
