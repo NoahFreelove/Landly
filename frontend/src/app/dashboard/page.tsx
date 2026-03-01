@@ -11,8 +11,9 @@ import ScoreCard from "@/components/dashboard/ScoreCard";
 import PaymentTable from "@/components/dashboard/PaymentTable";
 import NotificationFeed from "@/components/dashboard/NotificationFeed";
 import AdBanner from "@/components/dashboard/AdBanner";
-import GentrificationBar from "@/components/dashboard/GentrificationBar";
-import EvictionWidget from "@/components/dashboard/EvictionWidget";
+import DebtSpiralTimeline from "@/components/dashboard/DebtSpiralTimeline";
+import RentPlanSelector from "@/components/dashboard/RentPlanSelector";
+import { toggleAutoPay, getReferralCode } from "@/lib/api";
 import TotalDebtCard from "@/components/dashboard/TotalDebtCard";
 import PaymentModal from "@/components/dashboard/PaymentModal";
 
@@ -69,6 +70,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [ratingOpen, setRatingOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
 
   const refreshDashboard = useCallback(async () => {
     if (!token) return;
@@ -108,23 +110,6 @@ export default function DashboardPage() {
     ?? (user?.trust_score ? Math.round(300 + (user.trust_score / 100) * 550) : 580);
   const communityScore = dashData?.user?.social_credit_score ?? user?.social_credit_score ?? 500;
   const interestRate = dashData?.interest_rate ?? dashData?.recent_payments?.[0]?.interest_rate ?? 24.9;
-
-  // Generate mock eviction leaderboard from available data
-  const evictionLeaderboard = dashData
-    ? [
-        {
-          citizen_id: dashData.user.citizen_id,
-          odds: dashData.eviction_status.is_pending ? 89 : 23,
-        },
-        { citizen_id: "CZ-991-A", odds: 72 },
-        { citizen_id: "CZ-445-D", odds: 58 },
-        { citizen_id: "CZ-113-B", odds: 34 },
-        { citizen_id: "CZ-667-F", odds: 12 },
-      ]
-    : [];
-
-  // Gentrification index
-  const gentrificationIndex = dashData?.gentrification_index ?? 67;
 
   return (
     <AppLayout>
@@ -445,14 +430,92 @@ export default function DashboardPage() {
               </svg>
             </button>
 
+            {/* Debt Spiral Timeline */}
+            {dashData.debt_spiral && (
+              <DebtSpiralTimeline data={dashData.debt_spiral} />
+            )}
+
+            {/* AutoPay + Points + Referral Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* AutoPay Card */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-medium uppercase tracking-wider text-gray-500">AutoPay</h4>
+                  {dashData.autopay_enabled && (
+                    <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-green-50 text-green-700 border border-green-200">Active</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-400 mb-3">
+                  {dashData.autopay_enabled
+                    ? "You're saving 2% on all plans. Smart choice!"
+                    : "Save 2% on all your plans with AutoPay. Set it and forget it."}
+                </p>
+                <button
+                  onClick={async () => {
+                    if (!token) return;
+                    await toggleAutoPay(token, !dashData.autopay_enabled);
+                    refreshDashboard();
+                  }}
+                  className={`w-full py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                    dashData.autopay_enabled
+                      ? "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                      : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  }`}
+                >
+                  {dashData.autopay_enabled ? "Disable" : "Enable AutoPay"}
+                </button>
+              </div>
+
+              {/* Landly Points Card */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">Landly Points</h4>
+                <p className="text-2xl font-bold text-gray-900">{(dashData.landly_points || 0).toLocaleString()}</p>
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Earn 1 point per $1 paid. Redeem for rewards!
+                </p>
+                <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, ((dashData.landly_points || 0) / 10000) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-[9px] text-gray-300 mt-1">
+                  {Math.max(0, 10000 - (dashData.landly_points || 0)).toLocaleString()} pts to next reward
+                </p>
+              </div>
+
+              {/* Referral Card */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">Refer a Friend</h4>
+                <p className="text-[10px] text-gray-400 mb-3">
+                  Get $100 off your next installment! Share your code:
+                </p>
+                {dashData.referral_code ? (
+                  <div className="bg-gray-50 rounded-lg p-2 text-center">
+                    <span className="text-sm font-mono font-bold text-gray-900 tracking-wider">
+                      {dashData.referral_code}
+                    </span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      if (!token) return;
+                      await getReferralCode(token);
+                      refreshDashboard();
+                    }}
+                    className="w-full py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    Generate Code
+                  </button>
+                )}
+                <p className="text-[9px] text-gray-300 mt-2">
+                  Terms apply. Co-signer responsibility may be assigned.
+                </p>
+              </div>
+            </div>
+
             {/* Ad Banner */}
             <AdBanner />
-
-            {/* Gentrification Bar */}
-            <GentrificationBar index={gentrificationIndex} />
-
-            {/* Eviction Widget */}
-            <EvictionWidget leaderboard={evictionLeaderboard} />
 
             {/* Eviction warning if pending */}
             {dashData.eviction_status.is_pending && (
@@ -513,6 +576,16 @@ export default function DashboardPage() {
           klarnaDebts={dashData.klarna_debts}
           totalDebt={dashData.total_debt}
           onPaymentMade={refreshDashboard}
+        />
+      )}
+      {/* Rent Plan Selector */}
+      {dashData?.unit && (
+        <RentPlanSelector
+          isOpen={planSelectorOpen}
+          onClose={() => setPlanSelectorOpen(false)}
+          unitName={dashData.unit.name}
+          monthlyRent={dashData.unit.monthly_rent_usd}
+          onPlanSelected={refreshDashboard}
         />
       )}
     </AppLayout>
