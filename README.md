@@ -1,17 +1,17 @@
 # Landly — Citizen Housing Management Portal
 
-A satirical dystopian apartment management app featuring an AI landlord, prediction markets, debt surveillance, and a unit marketplace. Think corporate property management software designed by an authoritarian regime — dark humor meets brutalist UI.
+A satirical dystopian apartment management app featuring an AI landlord, prediction markets, debt surveillance, and a unit marketplace. Think corporate property management software designed by an authoritarian regime — dark humor wrapped in a clean, professional UI.
 
 ## Concept
 
-Landly imagines a near-future where tenants are "citizens" managed by an AI landlord system. Every aspect of housing is gamified, surveilled, and monetized:
+Landly imagines a near-future where tenants are "residents" managed by an AI landlord system. Every aspect of housing is gamified, surveilled, and monetized:
 
-- **Social Credit Scores** determine your housing tier and lock access
-- **AI Landlord** negotiates rent increases via chat (using limited "negotiation credits")
-- **Prediction Markets** let you bet on dystopian outcomes ("Will rent increase by 15%?")
+- **Community Scores** determine your housing tier and lock access to better units
+- **AI Landlord** negotiates rent via voice or text chat (powered by Claude)
+- **Prediction Markets** let you bet on dystopian outcomes ("Will average Community Score drop below 500?")
 - **Klarna-style debt** fragments everything into installment plans you can never escape
-- **Smart lock overrides** and oxygen quality monitoring as "features"
-- **Eviction countdowns** with real-time ticking timers
+- **Smart Home monitoring** and noise detection as "features"
+- **Lease Risk tracking** with eviction probability leaderboards
 
 The app is entirely fictional and satirical. No real transactions, surveillance, or AI landlords are involved.
 
@@ -19,31 +19,34 @@ The app is entirely fictional and satirical. No real transactions, surveillance,
 
 | Feature | Description |
 |---------|-------------|
-| **Dashboard** | Resource metrics (power, water, oxygen, noise), AI sentiment gauge, social credit score, rent charts, Klarna debt widgets |
-| **AI Landlord Chat** | Streaming chat interface with a dystopian AI persona. Split-pane layout with market sidebar showing interest trajectories |
-| **Prediction Markets** | PolyMarket-style betting on lease outcomes, rent hikes, and building events. Random-walk price simulation |
-| **Payments** | Debt breakdown tables, overdue tracking with compounding interest, Klarna installment management |
-| **Eviction Modal** | Countdown timer to eviction deadline, payment negotiation, debt summary |
-| **Unit Marketplace** | Filterable grid of available units with radiation levels, altitude, sector, and social credit requirements |
+| **Dashboard** | Total debt hero card, credit/community score gauges with improvement advice, payment history, debt spiral timeline, notifications, gentrification index, lease risk leaderboard |
+| **Total Debt & Payments** | Prominent debt display with category breakdown. Pay individual items or make lump-sum payments applied across outstanding debts. AutoPay toggle, Landly Points rewards |
+| **AI Landlord Chat** | Streaming chat with a corporate AI persona. Voice input via push-to-talk with audio visualization |
+| **Prediction Markets** | Betting on lease outcomes, rent hikes, and building events. Token wallet with top-up. Leaderboard rankings |
+| **Unit Marketplace** | Filterable grid of available apartments with real photos, Community Score requirements, and Klarna installment checkout |
+| **Notifications** | Categorized feed (warnings, violations, maintenance, general) with per-item dismiss and bulk clear |
+| **Rate Your Neighbor** | Star-rating system across noise compliance, cleanliness, and community engagement |
+| **Rent Plan Selector** | Choose between payment plan options for your unit |
+| **Referral System** | Generate referral codes, earn credits toward installments |
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS |
-| **Backend** | Python FastAPI, SQLAlchemy ORM |
+| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS, BaseUI (Uber) |
+| **Backend** | Python FastAPI, SQLAlchemy ORM, Pydantic |
 | **Database** | SQLite (file-based, zero config) |
 | **AI Chat** | Anthropic Claude API (mock responses as fallback) |
 | **Auth** | JWT tokens via python-jose |
 
 ## Design System
 
-Built from custom UI mockups with a surveillance-state aesthetic:
+Light theme with a clean corporate aesthetic:
 
 - **Font:** Space Grotesk (300–700)
-- **Palette:** Deep purple primary (`#3211d4`), near-black backgrounds (`#131022`), dark surfaces (`#1d1c27`)
-- **Accents:** Red for danger/eviction, green for compliant, yellow for warnings, Klarna pink (`#ffb3c7`)
-- **Style:** Dark mode only, uppercase tracked labels, brutalist cards, glowing borders
+- **Palette:** Blue primary (`#3B82F6`), off-white backgrounds (`#FAFBFC`), white card surfaces
+- **Accents:** Red for danger/eviction, green for compliant, yellow for warnings, Klarna pink (`#FFB3C7`)
+- **Style:** Light mode, uppercase tracked labels, rounded cards, subtle borders, Humaaans illustrations
 
 ## Project Structure
 
@@ -51,10 +54,18 @@ Built from custom UI mockups with a surveillance-state aesthetic:
 Landly/
 ├── frontend/               # Next.js app
 │   ├── src/
-│   │   ├── app/            # App Router pages (login, dashboard, chat, markets, payments, units)
+│   │   ├── app/            # Pages: dashboard, marketplace, landlord, markets, leaderboard, login
 │   │   ├── components/     # React components organized by feature
-│   │   ├── lib/            # API client, types, auth utilities
-│   │   └── hooks/          # Custom React hooks
+│   │   │   ├── dashboard/  # ScoreCard, PaymentTable, TotalDebtCard, PaymentModal,
+│   │   │   │               # NotificationFeed, AdBanner, EvictionWidget, RatingModal,
+│   │   │   │               # GentrificationBar, DebtSpiralTimeline, RentPlanSelector
+│   │   │   ├── marketplace/# UnitCard, UnitDetailModal, FilterBar, KlarnaCheckout
+│   │   │   ├── landlord/   # PushToTalk, VoiceVisualizer
+│   │   │   ├── markets/    # MarketCard, BetModal, WalletWidget
+│   │   │   ├── leaderboard/# LeaderboardTable
+│   │   │   └── layout/     # AppLayout, Sidebar, TimeBar
+│   │   └── lib/            # API client, types, auth utilities
+│   ├── public/             # Humaaans illustrations, Klarna logo
 │   ├── tailwind.config.ts  # Design system tokens
 │   └── package.json
 │
@@ -62,13 +73,13 @@ Landly/
 │   ├── main.py             # App entry point, CORS, lifespan
 │   ├── config.py           # Settings (DB, JWT, API keys)
 │   ├── database.py         # SQLAlchemy engine + session
-│   ├── seed.py             # Test data population
+│   ├── seed.py             # Test data (100 users, payments, debts, notifications)
 │   ├── models/             # SQLAlchemy ORM models
 │   ├── schemas/            # Pydantic request/response schemas
 │   ├── routers/            # API route handlers
-│   └── services/           # Business logic (AI, interest calc, market sim)
+│   └── services/           # Business logic (auth, AI chat)
 │
-└── stitch_remix_of_eviction_warning_modal/  # UI reference mockups (HTML)
+└── docs/plans/             # Design docs and implementation plans
 ```
 
 ## Getting Started
@@ -87,7 +98,7 @@ python3 -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Seed the database with test data
+# Seed the database with test data (100 users)
 python seed.py
 
 # Start the server
@@ -117,34 +128,29 @@ JWT_SECRET=your-secret-key  # Change in production
 
 ### Test Credentials
 
-After running `python seed.py`, the following accounts are available:
+After running `python seed.py`, the following accounts are available (plus 97 additional generated residents):
 
-| Citizen ID | Password | Tier | Status |
-|------------|----------|------|--------|
-| `CIT-7291` | `citizen123` | Silver | Warning |
-| `CIT-0042` | `citizen123` | Bronze | Probation |
-| `CIT-9999` | `admin` | Platinum | Compliant |
+| Resident ID | Password | Tier | Status |
+|-------------|----------|------|--------|
+| `RES-7291` | `citizen123` | Plus (Silver) | Warning |
+| `RES-0042` | `citizen123` | Standard (Bronze) | Probation |
+| `RES-9999` | `admin` | Elite (Platinum) | Compliant |
+
+All 100 seeded users share the password `citizen123`.
 
 ## API Overview
 
 | Area | Endpoints |
 |------|-----------|
 | **Auth** | `POST /api/auth/login` · `GET /api/auth/me` |
-| **Dashboard** | `GET /api/dashboard` · `GET /api/dashboard/charts/oxygen` · `GET /api/dashboard/charts/rent` |
-| **Chat** | `POST /api/chat/send` (SSE) · `GET /api/chat/history` |
-| **Markets** | `GET /api/markets` · `POST /api/markets/{id}/bet` · `GET /api/markets/interest-trajectory` |
-| **Payments** | `GET /api/payments/summary` · `GET /api/payments/debt-breakdown` · `POST /api/payments/pay` · `GET /api/payments/eviction-status` |
+| **Dashboard** | `GET /api/dashboard` |
+| **Chat** | `POST /api/chat/send` (SSE) · `POST /api/chat/voice` · `GET /api/chat/history` · `DELETE /api/chat/history` |
+| **Markets** | `GET /api/markets` · `POST /api/markets/{id}/bet` · `POST /api/markets/wallet/add-tokens` · `GET /api/markets/leaderboard` |
+| **Payments** | `GET /api/payments/summary` · `POST /api/payments/pay` · `POST /api/payments/lump-sum` · `GET /api/payments/eviction-status` · `POST /api/payments/select-rent-plan` · `GET /api/payments/active-plans` · `POST /api/payments/autopay` · `GET /api/payments/referral-code` · `POST /api/payments/use-referral` · `GET /api/payments/points` · `POST /api/payments/points/redeem` |
 | **Units** | `GET /api/units` · `GET /api/units/{id}` · `POST /api/units/{id}/apply` |
-
-## Reference Mockups
-
-The `stitch_remix_of_eviction_warning_modal/` directory contains the original HTML/CSS mockups that define the visual design:
-
-- `dystopian_rental_dashboard/` — Sidebar navigation, dashboard metrics, charts
-- `corporate_control_center_dashboard/` — AI sentiment, PolyMarket widget, Klarna, unit controls
-- `ai_landlord_markets/` — Chat interface with market sidebar
-- `eviction_warning_modal/` — Payment modal with countdown timer and debt table
-- `unit_selection_interface/` — Unit marketplace grid with filters
+| **Notifications** | `GET /api/notifications` · `POST /api/notifications/read-all` · `POST /api/notifications/{id}/read` |
+| **Ratings** | `POST /api/ratings/{user_id}` · `GET /api/ratings/{user_id}` |
+| **Simulation** | `GET /api/admin/current-date` · `POST /api/admin/advance-day` · `POST /api/admin/advance-month` |
 
 ## License
 
