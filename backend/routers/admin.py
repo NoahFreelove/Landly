@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User, Payment, Market, SimulationState, Notification
+from models import User, Payment, Market, SimulationState, Notification, KlarnaDebt, Unit
 from schemas import SimulationStateResponse, AdvanceTimeResponse
 from datetime import timedelta, datetime, timezone
 import random
@@ -125,6 +125,62 @@ def advance_month(db: Session = Depends(get_db)):
         if random.random() > 0.7:
             m.is_active = False
             events.append(f"Market resolved: {m.question}")
+
+    # Generate monthly rent plans for all housed users
+    housed_users = db.query(User).filter(User.unit_id.isnot(None)).all()
+    rent_month = state.current_date.strftime("%Y-%m")
+
+    for u in housed_users:
+        # Skip if plan already exists for this month
+        existing = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == u.id,
+            KlarnaDebt.rent_month == rent_month
+        ).first()
+        if existing:
+            continue
+
+        unit = db.query(Unit).filter(Unit.id == u.unit_id).first()
+        if not unit:
+            continue
+
+        plan_type = u.default_plan_type or "flexible"
+
+        # Import plan config
+        plan_configs = {
+            "standard": {"months": 3, "base_apr": 0.18, "label": "Standard"},
+            "flexible": {"months": 6, "base_apr": 0.24, "label": "Flexible"},
+            "freedom":  {"months": 12, "base_apr": 0.35, "label": "Freedom"},
+        }
+        config = plan_configs.get(plan_type, plan_configs["flexible"])
+
+        active_count = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == u.id,
+            KlarnaDebt.status == "active",
+            KlarnaDebt.rent_month.isnot(None)
+        ).count()
+
+        apr = config["base_apr"] + (active_count * 0.02)
+
+        # AutoPay users get locked into freedom (12-month) plan
+        if u.autopay_enabled:
+            config = plan_configs["freedom"]
+            apr = config["base_apr"] + (active_count * 0.02) - 0.02  # 2% "discount"
+            plan_type = "freedom"
+
+        from datetime import timezone as tz
+        debt = KlarnaDebt(
+            user_id=u.id,
+            item_name=f"{rent_month} Rent — {unit.name}",
+            total_amount=unit.monthly_rent_usd,
+            installments=config["months"],
+            installments_paid=0,
+            status="active",
+            rent_month=rent_month,
+            plan_type=plan_type,
+            apr=round(apr, 4),
+        )
+        db.add(debt)
+        events.append(f"Rent plan created for {u.citizen_id}: {rent_month} ({config['label']})")
 
     db.commit()
     return AdvanceTimeResponse(previous_date=previous, new_date=state.current_date, events=events)
