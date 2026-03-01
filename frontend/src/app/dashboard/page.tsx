@@ -150,7 +150,16 @@ export default function DashboardPage() {
               )}
               {user && (
                 <span
-                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                  title={
+                    user.status === "compliant"
+                      ? "Your account is in good standing. Keep it up!"
+                      : user.status === "warning"
+                      ? "Your account has been flagged due to late payments or policy concerns. Resolve outstanding issues to return to good standing."
+                      : user.status === "probation"
+                      ? "Your account is on probation. Further violations may result in lease termination. Contact management immediately."
+                      : "Eviction proceedings have been initiated. You have 30 days to resolve outstanding obligations or vacate."
+                  }
+                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border cursor-help ${
                     user.status === "compliant"
                       ? "bg-green-50 text-green-700 border-green-200"
                       : user.status === "warning"
@@ -263,21 +272,21 @@ export default function DashboardPage() {
                 value={creditScore}
                 max={850}
                 color={creditScore >= 670 ? "green" : creditScore >= 500 ? "yellow" : "red"}
-                subtitle="Based on payment history"
+                subtitle="Pay balances on time and reduce outstanding debt to improve"
               />
               <ScoreCard
                 title="Community Score"
                 value={communityScore}
                 max={1000}
                 color="dynamic"
-                subtitle="Based on community engagement"
+                subtitle="Rate neighbors, resolve violations, and maintain noise compliance"
               />
               <ScoreCard
                 title="Interest Rate"
                 value={interestRate}
                 max={100}
                 color={interestRate <= 10 ? "green" : interestRate <= 25 ? "yellow" : "red"}
-                subtitle="Current rate on outstanding obligations"
+                subtitle="Improve your Community Score to unlock lower rates"
                 isPercentage
               />
             </div>
