@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User, Unit, Payment, KlarnaDebt, Market, Notification
+from models import User, Unit, Payment, KlarnaDebt, Market, Notification, SimulationState
 from schemas import UserResponse, UnitResponse, PaymentResponse, KlarnaDebtResponse, MarketResponse, NotificationResponse
 from services.auth import get_current_user
 
@@ -39,10 +41,41 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
         "amount_owed": total_overdue
     }
 
-    # Gentrification index: average rent as percentage of max possible rent
-    all_units = db.query(Unit).all()
-    avg_rent = sum(u.monthly_rent_usd for u in all_units) / len(all_units) if all_units else 0
-    gentrification_index = min(100, (avg_rent / 4100) * 100)  # 4100 is max rent (Park & Pine)
+    # Debt spiral timeline data
+    active_rent_plans = db.query(KlarnaDebt).filter(
+        KlarnaDebt.user_id == user.id,
+        KlarnaDebt.status.in_(["active", "overdue"]),
+        KlarnaDebt.rent_month.isnot(None),
+    ).order_by(KlarnaDebt.created_at.asc()).all()
+
+    spiral_plans = []
+    for p in active_rent_plans:
+        inst_amt = p.total_amount / p.installments
+        remaining = p.installments - p.installments_paid
+        spiral_plans.append({
+            "id": p.id,
+            "rent_month": p.rent_month,
+            "plan_type": p.plan_type,
+            "total_amount": p.total_amount,
+            "installments": p.installments,
+            "installments_paid": p.installments_paid,
+            "installment_amount": round(inst_amt, 2),
+            "remaining_balance": round(inst_amt * remaining, 2),
+            "apr": p.apr or 0.24,
+            "status": p.status,
+        })
+
+    this_month_total = sum(p["installment_amount"] for p in spiral_plans)
+
+    # Projected debt-free date
+    max_remaining = max((p["installments"] - p["installments_paid"] for p in spiral_plans), default=0)
+    sim = db.query(SimulationState).first()
+    current_date = sim.current_date if sim else datetime.now(timezone.utc).date()
+    # Add max_remaining months
+    projected_month = current_date.month + max_remaining
+    projected_year = current_date.year + (projected_month - 1) // 12
+    projected_month = ((projected_month - 1) % 12) + 1
+    projected_debt_free = current_date.replace(year=projected_year, month=projected_month)
 
     return {
         "user": UserResponse.model_validate(user),
@@ -52,7 +85,6 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
         "markets": [MarketResponse.model_validate(m) for m in markets],
         "notifications": [NotificationResponse.model_validate(n) for n in notifications],
         "eviction_status": eviction_status,
-        "gentrification_index": round(gentrification_index, 1),
         "credit_score": 300 + int(user.social_credit_score * 0.55),
         "interest_rate": 5.5 + max(0, (700 - user.social_credit_score) * 0.02),
         "total_debt": round(total_debt, 2),
@@ -61,5 +93,14 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
             "late_fees": round(late_fee_total, 2),
             "klarna": round(klarna_remaining, 2),
             "interest": round(interest_total, 2),
-        }
+        },
+        "debt_spiral": {
+            "plans": spiral_plans,
+            "active_count": len(spiral_plans),
+            "this_month_total": round(this_month_total, 2),
+            "projected_debt_free": projected_debt_free.isoformat(),
+        },
+        "autopay_enabled": bool(user.autopay_enabled),
+        "landly_points": user.landly_points,
+        "referral_code": user.referral_code,
     }
