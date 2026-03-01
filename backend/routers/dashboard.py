@@ -30,7 +30,7 @@ def get_dashboard(user: User = Depends(get_current_user), db: Session = Depends(
     interest_total = sum(p.accrued_interest for p in pending_payments)
     klarna_remaining = sum(
         (d.total_amount / d.installments) * (d.installments - d.installments_paid)
-        for d in klarna_debts if d.status == "active"
+        for d in klarna_debts if d.status in ("active", "overdue")
     )
     total_debt = sum(p.amount + p.accrued_interest for p in pending_payments) + klarna_remaining
 

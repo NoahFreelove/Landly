@@ -35,9 +35,9 @@ class LeaderboardEntry(BaseModel):
     eviction_odds: float
     total_owed: float
 
-class AddTokensRequest(BaseModel):
-    amount: float
+class AddPointsRequest(BaseModel):
+    amount: int
     klarna_installments: Optional[int] = None
 
-class AddTokensResponse(BaseModel):
-    new_balance: float
+class AddPointsResponse(BaseModel):
+    new_balance: int

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Market } from "@/lib/types";
-import { placeBet, addTokens } from "@/lib/api";
+import { placeBet, addPoints } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
   Modal,
@@ -27,7 +27,7 @@ export default function BetModal({
   onClose,
   onBetPlaced,
 }: BetModalProps) {
-  const { user, token, updateBalance } = useAuth();
+  const { user, token, updatePoints } = useAuth();
   const [position, setPosition] = useState<Position>("yes");
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +40,7 @@ export default function BetModal({
   const [klarnaPlan, setKlarnaPlan] = useState<number>(3);
   const [klarnaProgress, setKlarnaProgress] = useState(0);
 
-  const balance = user?.token_balance ?? 0;
+  const balance = user?.landly_points ?? 0;
 
   // Reset state when modal opens
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function BetModal({
       await placeBet(token, market.id, position, parsedAmount);
 
       // Optimistically update balance
-      updateBalance(balance - parsedAmount);
+      updatePoints(balance - parsedAmount);
 
       // Dispatch wallet update event for flash animation
       window.dispatchEvent(new CustomEvent("landly:wallet:update"));
@@ -96,7 +96,7 @@ export default function BetModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [market, token, parsedAmount, position, isInsufficient, balance, updateBalance, onBetPlaced, onClose]);
+  }, [market, token, parsedAmount, position, isInsufficient, balance, updatePoints, onBetPlaced, onClose]);
 
   // Klarna financing flow
   const handleKlarnaFinance = useCallback(async () => {
@@ -113,8 +113,8 @@ export default function BetModal({
     }
 
     try {
-      const res = await addTokens(token, Math.ceil(deficit), klarnaPlan);
-      updateBalance(res.new_balance);
+      const res = await addPoints(token, Math.ceil(deficit), klarnaPlan);
+      updatePoints(res.new_balance);
       window.dispatchEvent(new CustomEvent("landly:wallet:update"));
       setKlarnaStep("done");
 
@@ -122,7 +122,7 @@ export default function BetModal({
       await new Promise((r) => setTimeout(r, 500));
       if (market) {
         await placeBet(token, market.id, position, parsedAmount);
-        updateBalance(res.new_balance - parsedAmount);
+        updatePoints(res.new_balance - parsedAmount);
         window.dispatchEvent(new CustomEvent("landly:wallet:update"));
       }
 
@@ -138,7 +138,7 @@ export default function BetModal({
       );
       setShowKlarna(false);
     }
-  }, [token, deficit, klarnaPlan, market, position, parsedAmount, updateBalance, onBetPlaced, onClose]);
+  }, [token, deficit, klarnaPlan, market, position, parsedAmount, updatePoints, onBetPlaced, onClose]);
 
   if (!market) return null;
 
@@ -206,7 +206,7 @@ export default function BetModal({
             </div>
             <p className="text-lg font-bold text-gray-900">Position Confirmed</p>
             <p className="text-sm text-gray-500">
-              {parsedAmount.toFixed(2)} LDLY on{" "}
+              {parsedAmount.toFixed(0)} pts on{" "}
               {position.toUpperCase()}
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function BetModal({
                 <div className="space-y-4">
                   <div className="rounded-lg bg-pink-50 border border-pink-100 p-3">
                     <p className="text-xs font-medium text-pink-600">Financing</p>
-                    <p className="text-lg font-bold text-gray-900">{Math.ceil(deficit)} LDLY</p>
+                    <p className="text-lg font-bold text-gray-900">{Math.ceil(deficit)} pts</p>
                     <p className="text-[10px] text-gray-500">to cover your position deficit</p>
                   </div>
 
@@ -262,8 +262,8 @@ export default function BetModal({
                             <p className="text-[10px] text-gray-500">35% APR</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-bold text-gray-900">{monthly.toFixed(2)} LDLY/mo</p>
-                            <p className="text-[10px] text-gray-400">Total: {total.toFixed(2)} LDLY</p>
+                            <p className="text-sm font-bold text-gray-900">{monthly.toFixed(2)} pts/mo</p>
+                            <p className="text-[10px] text-gray-400">Total: {total.toFixed(2)} pts</p>
                           </div>
                         </div>
                       </button>
@@ -347,7 +347,7 @@ export default function BetModal({
           <div className="mt-2 flex items-center gap-1.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Balance:</span>
             <span className="text-xs font-bold tabular-nums text-gray-700">
-              {balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LDLY
+              {balance.toLocaleString("en-US")} pts
             </span>
           </div>
         </div>
@@ -487,7 +487,7 @@ export default function BetModal({
           {/* Amount input */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-500">
-              Position Amount (LDLY)
+              Position Amount (pts)
             </label>
             <Input
               type="number"
@@ -500,7 +500,7 @@ export default function BetModal({
               }}
               placeholder="0.00"
               endEnhancer={() => (
-                <span className="text-sm font-semibold text-gray-400">LDLY</span>
+                <span className="text-sm font-semibold text-gray-400">pts</span>
               )}
               overrides={{
                 Root: {
@@ -595,10 +595,10 @@ export default function BetModal({
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-amber-500 text-sm">{"\u26A0"}</span>
-                <p className="text-xs font-bold text-amber-700">Insufficient LDLY Balance</p>
+                <p className="text-xs font-bold text-amber-700">Insufficient Points</p>
               </div>
               <p className="text-xs text-amber-600 mb-3">
-                You need <span className="font-bold">{deficit.toFixed(2)} more LDLY</span> to place this position.
+                You need <span className="font-bold">{Math.ceil(deficit)} more pts</span> to place this position.
               </p>
               <button
                 onClick={() => setShowKlarna(true)}
@@ -622,7 +622,7 @@ export default function BetModal({
               <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
                 <span>Avg Price</span>
                 <span className="font-mono text-gray-900">
-                  {(price * 100).toFixed(0)}% ({price.toFixed(2)} LDLY)
+                  {(price * 100).toFixed(0)}% ({price.toFixed(2)} pts)
                 </span>
               </div>
               <div className="my-2 border-t border-gray-200" />
@@ -631,7 +631,7 @@ export default function BetModal({
                   Potential Payout
                 </span>
                 <span className="text-base font-bold text-green-600">
-                  {potentialPayout.toFixed(2)} LDLY
+                  {potentialPayout.toFixed(2)} pts
                 </span>
               </div>
               <div className="mt-0.5 flex items-center justify-between">
@@ -642,7 +642,7 @@ export default function BetModal({
                   }`}
                 >
                   {profit > 0 ? "+" : ""}
-                  {profit.toFixed(2)} LDLY
+                  {profit.toFixed(2)} pts
                 </span>
               </div>
             </div>
@@ -695,7 +695,7 @@ export default function BetModal({
               },
             }}
           >
-            {isSubmitting ? "Processing..." : isInsufficient ? "Insufficient Balance" : "Confirm Position"}
+            {isSubmitting ? "Processing..." : isInsufficient ? "Insufficient Points" : "Confirm Position"}
           </Button>
         </div>
       </ModalBody>

@@ -142,7 +142,7 @@ export async function getLeaderboard(token: string) {
   return api<any[]>("/api/markets/leaderboard", { token });
 }
 
-export async function addTokens(
+export async function addPoints(
   token: string,
   amount: number,
   klarnaInstallments?: number
@@ -244,10 +244,16 @@ export async function getPoints(token: string) {
   return api<any>("/api/payments/points", { token });
 }
 
-export async function redeemPoints(token: string, reward: string) {
-  return api<any>("/api/payments/points/redeem", {
+export async function redeemPointsForRent(token: string, points: number) {
+  return api<{
+    points_spent: number;
+    dollar_credit: number;
+    items_paid: number;
+    applied_to: string[];
+    remaining_points: number;
+  }>("/api/payments/points/redeem-rent", {
     method: "POST",
-    body: JSON.stringify({ reward }),
+    body: JSON.stringify({ points }),
     token,
   });
 }

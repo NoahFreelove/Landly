@@ -162,7 +162,6 @@ def seed():
             status="warning",
             tier="silver",
             unit_id=units[0].id,
-            token_balance=925.0,
         ),
         User(
             citizen_id="RES-0042",
@@ -173,7 +172,6 @@ def seed():
             status="probation",
             tier="bronze",
             unit_id=units[5].id,
-            token_balance=990.0,
         ),
         User(
             citizen_id="RES-9999",
@@ -184,7 +182,6 @@ def seed():
             status="compliant",
             tier="platinum",
             unit_id=units[3].id,
-            token_balance=1000.0,
         ),
     ]
     db.add_all(users)
@@ -192,15 +189,15 @@ def seed():
 
     # Set new fields on seeded users
     users[0].default_plan_type = "flexible"
-    users[0].landly_points = 2340
+    users[0].landly_points = 3265  # 925 (former tokens) + 2340 (earned)
     users[0].referral_code = "LDLY-A7291X"
 
     users[1].default_plan_type = "freedom"
-    users[1].landly_points = 870
+    users[1].landly_points = 1860  # 990 (former tokens) + 870 (earned)
     users[1].referral_code = "LDLY-J0042B"
 
     users[2].default_plan_type = "standard"
-    users[2].landly_points = 0
+    users[2].landly_points = 1000  # default starting balance
     users[2].referral_code = "LDLY-ADMIN9"
 
     now = datetime.now(timezone.utc)
@@ -230,7 +227,7 @@ def seed():
             status=status,
             tier=tier,
             unit_id=unit.id,
-            token_balance=round(random.uniform(0, 1000), 2),
+            landly_points=random.randint(100, 2000),
         )
         generated_users.append(u)
 

@@ -18,7 +18,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (citizen_id: string, password: string) => Promise<void>;
   logout: () => void;
-  updateBalance: (newBalance: number) => void;
+  updatePoints: (newBalance: number) => void;
   refreshUser: () => Promise<void>;
 }
 
@@ -64,8 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = "/login";
   }, []);
 
-  const updateBalance = useCallback((newBalance: number) => {
-    setUser((prev) => (prev ? { ...prev, token_balance: newBalance } : prev));
+  const updatePoints = useCallback((newBalance: number) => {
+    setUser((prev) => (prev ? { ...prev, landly_points: newBalance } : prev));
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
-        updateBalance,
+        updatePoints,
         refreshUser,
       }}
     >

@@ -30,7 +30,7 @@ def payment_summary(user: User = Depends(get_current_user), db: Session = Depend
 
     pending_payments = [p for p in payments if p.status in ("pending", "overdue")]
     total_owed = sum(p.amount + p.accrued_interest for p in pending_payments)
-    total_owed += sum((d.total_amount / d.installments) * (d.installments - d.installments_paid) for d in klarna if d.status == "active")
+    total_owed += sum((d.total_amount / d.installments) * (d.installments - d.installments_paid) for d in klarna if d.status in ("active", "overdue"))
 
     overdue = [p for p in payments if p.status == "overdue"]
     next_due = min((p.due_date for p in pending_payments), default=None)
@@ -38,7 +38,7 @@ def payment_summary(user: User = Depends(get_current_user), db: Session = Depend
     rent_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "rent")
     late_fee_total = sum(p.amount + p.accrued_interest for p in pending_payments if p.payment_type == "late_fee")
     interest_total = sum(p.accrued_interest for p in pending_payments)
-    klarna_total = sum((d.total_amount / d.installments) * (d.installments - d.installments_paid) for d in klarna if d.status == "active")
+    klarna_total = sum((d.total_amount / d.installments) * (d.installments - d.installments_paid) for d in klarna if d.status in ("active", "overdue"))
 
     return PaymentSummaryResponse(
         total_owed=round(total_owed, 2),
@@ -106,7 +106,7 @@ def lump_sum_payment(req: LumpSumRequest, user: User = Depends(get_current_user)
     # Apply remaining to active Klarna debts
     if remaining > 0:
         klarna_debts = db.query(KlarnaDebt).filter(
-            KlarnaDebt.user_id == user.id, KlarnaDebt.status == "active"
+            KlarnaDebt.user_id == user.id, KlarnaDebt.status.in_(["active", "overdue"])
         ).all()
 
         for debt in klarna_debts:
@@ -317,39 +317,85 @@ def use_referral(
 def get_points(user: User = Depends(get_current_user)):
     return {
         "balance": user.landly_points,
-        "rewards": [
-            {"id": "score_boost", "name": "Community Score Boost", "cost": 10000, "description": "+5 Community Score"},
-            {"id": "rate_reduction", "name": "Rate Reduction", "cost": 25000, "description": "0.5% APR reduction on one plan"},
-            {"id": "priority_maintenance", "name": "Priority Maintenance", "cost": 50000, "description": "Skip the maintenance queue"},
-        ]
+        "exchange_rate": 100,
+        "rent_credit_available": round(user.landly_points / 100, 2),
     }
 
-@router.post("/points/redeem")
-def redeem_points(
+@router.post("/points/redeem-rent")
+def redeem_points_for_rent(
     req: PointsRedeemRequest,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    costs = {"score_boost": 10000, "rate_reduction": 25000, "priority_maintenance": 50000}
-    if req.reward not in costs:
-        raise HTTPException(status_code=400, detail="Invalid reward")
-    if user.landly_points < costs[req.reward]:
+    points_to_spend = req.points
+    if points_to_spend < 100:
+        raise HTTPException(status_code=400, detail="Minimum redemption is 100 points ($1.00)")
+    if user.landly_points < points_to_spend:
         raise HTTPException(status_code=400, detail="Insufficient points")
 
-    user.landly_points -= costs[req.reward]
+    # Round down to nearest 100
+    points_to_spend = (points_to_spend // 100) * 100
+    dollar_credit = points_to_spend / 100
 
-    if req.reward == "score_boost":
-        user.social_credit_score = min(1000, user.social_credit_score + 5)
-        message = "Community Score boosted by 5 points! Every bit helps."
-    elif req.reward == "rate_reduction":
-        debt = db.query(KlarnaDebt).filter(
-            KlarnaDebt.user_id == user.id, KlarnaDebt.status == "active"
-        ).first()
-        if debt:
-            debt.apr = max(0.05, debt.apr - 0.005)
-        message = "0.5% rate reduction applied to your oldest active plan!"
-    else:
-        message = "Priority maintenance activated! You're next in the queue."
+    user.landly_points -= points_to_spend
 
+    remaining = dollar_credit
+    items_paid = 0
+    applied_to = []
+
+    overdue_payments = db.query(Payment).filter(
+        Payment.user_id == user.id, Payment.status == "overdue"
+    ).order_by(Payment.due_date.asc()).all()
+
+    pending_payments = db.query(Payment).filter(
+        Payment.user_id == user.id, Payment.status == "pending"
+    ).order_by(Payment.due_date.asc()).all()
+
+    for payment in overdue_payments + pending_payments:
+        if remaining <= 0:
+            break
+        payment_total = payment.amount + payment.accrued_interest
+        if remaining >= payment_total:
+            payment.status = "paid"
+            remaining -= payment_total
+            items_paid += 1
+            applied_to.append(payment.payment_type.replace("_", " "))
+        else:
+            payment.amount -= remaining
+            applied_to.append(f"partial {payment.payment_type.replace('_', ' ')}")
+            remaining = 0
+
+    if remaining > 0:
+        klarna_debts = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == user.id,
+            KlarnaDebt.status.in_(["active", "overdue"])
+        ).order_by(KlarnaDebt.created_at.asc()).all()
+
+        for debt in klarna_debts:
+            if remaining <= 0:
+                break
+            installment_amount = debt.total_amount / debt.installments
+            remaining_installments = debt.installments - debt.installments_paid
+
+            for _ in range(remaining_installments):
+                if remaining >= installment_amount:
+                    remaining -= installment_amount
+                    debt.installments_paid += 1
+                    items_paid += 1
+                    applied_to.append(debt.item_name)
+                else:
+                    break
+
+            if debt.installments_paid >= debt.installments:
+                debt.status = "completed"
+
+    amount_applied = dollar_credit - remaining
     db.commit()
-    return {"message": message, "remaining_points": user.landly_points}
+
+    return {
+        "points_spent": points_to_spend,
+        "dollar_credit": round(amount_applied, 2),
+        "items_paid": items_paid,
+        "applied_to": applied_to[:3],
+        "remaining_points": user.landly_points,
+    }

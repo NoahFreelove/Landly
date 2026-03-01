@@ -16,6 +16,7 @@ import RentPlanSelector from "@/components/dashboard/RentPlanSelector";
 import { toggleAutoPay, getReferralCode } from "@/lib/api";
 import TotalDebtCard from "@/components/dashboard/TotalDebtCard";
 import PaymentModal from "@/components/dashboard/PaymentModal";
+import RedeemPointsDialog from "@/components/dashboard/RedeemPointsDialog";
 
 // Skeleton components for loading state
 function SkeletonCard({ className = "" }: { className?: string }) {
@@ -71,6 +72,7 @@ export default function DashboardPage() {
   const [ratingOpen, setRatingOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
 
   const refreshDashboard = useCallback(async () => {
     if (!token) return;
@@ -471,17 +473,18 @@ export default function DashboardPage() {
                 <h4 className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">Landly Points</h4>
                 <p className="text-2xl font-bold text-gray-900">{(dashData.landly_points || 0).toLocaleString()}</p>
                 <p className="text-[10px] text-gray-400 mt-1">
-                  Earn 1 point per $1 paid. Redeem for rewards!
+                  Earn 1 pt per $1 paid. Use on markets or redeem for rent!
                 </p>
-                <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-400 rounded-full transition-all"
-                    style={{ width: `${Math.min(100, ((dashData.landly_points || 0) / 10000) * 100)}%` }}
-                  />
-                </div>
                 <p className="text-[9px] text-gray-300 mt-1">
-                  {Math.max(0, 10000 - (dashData.landly_points || 0)).toLocaleString()} pts to next reward
+                  {"\u2248"} ${((dashData.landly_points || 0) / 100).toFixed(2)} rent credit available
                 </p>
+                <button
+                  onClick={() => setRedeemOpen(true)}
+                  disabled={(dashData.landly_points || 0) < 100}
+                  className="w-full mt-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Redeem for Rent
+                </button>
               </div>
 
               {/* Referral Card */}
@@ -578,6 +581,13 @@ export default function DashboardPage() {
           onPaymentMade={refreshDashboard}
         />
       )}
+      {/* Redeem Points Dialog */}
+      <RedeemPointsDialog
+        isOpen={redeemOpen}
+        onClose={() => setRedeemOpen(false)}
+        pointsBalance={dashData?.landly_points || 0}
+        onRedeemed={refreshDashboard}
+      />
       {/* Rent Plan Selector */}
       {dashData?.unit && (
         <RentPlanSelector

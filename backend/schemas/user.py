@@ -14,7 +14,6 @@ class UserResponse(BaseModel):
     status: str
     tier: str
     unit_id: Optional[int] = None
-    token_balance: float = 1000.0
     default_plan_type: str = "flexible"
     autopay_enabled: bool = False
     landly_points: int = 0

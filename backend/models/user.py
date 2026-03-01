@@ -16,10 +16,9 @@ class User(Base):
     status = Column(String, default="compliant")  # compliant, warning, probation, eviction_pending
     tier = Column(String, default="bronze")  # bronze, silver, gold, platinum
     unit_id = Column(Integer, ForeignKey("units.id"), nullable=True)
-    token_balance = Column(Float, default=1000.0)
     default_plan_type = Column(String, default="flexible")  # standard, flexible, freedom
     autopay_enabled = Column(Integer, default=0)  # 0=off, 1=on
-    landly_points = Column(Integer, default=0)
+    landly_points = Column(Integer, default=1000)
     referred_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     referral_code = Column(String, unique=True, nullable=True)
 

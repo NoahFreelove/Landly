@@ -66,4 +66,4 @@ class AutoPayToggleRequest(BaseModel):
     enabled: bool
 
 class PointsRedeemRequest(BaseModel):
-    reward: str  # "score_boost", "rate_reduction", "priority_maintenance"
+    points: int

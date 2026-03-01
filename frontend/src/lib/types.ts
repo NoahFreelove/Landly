@@ -8,7 +8,6 @@ export interface User {
   status: "compliant" | "warning" | "probation" | "eviction_pending";
   tier: "bronze" | "silver" | "gold" | "platinum";
   unit_id: number | null;
-  token_balance: number;
   default_plan_type: "standard" | "flexible" | "freedom";
   autopay_enabled: boolean;
   landly_points: number;
