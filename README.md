@@ -1,5 +1,13 @@
-# Landly — Citizen Housing Management Portal
+# Landly
 
+## Human Written Preface
+This project was completely vibecoded for the Deerhacks V hackathon (Feb 2026). This project was the result of me trying to brainstorm dystopian combinations. AI Landlord came to mind as two things which would pair well together to make a horrific combo.
+
+This project is a joke and meant to be a political satire bit. Its an exaggeration of the current state of tech - AI surveillance / over-reach, installment debt, and prediction markets.
+
+Everything that comes after this has been written using Claude Opus 4.6 and guided by myself:
+
+# Landly — Citizen Housing Management Portal
 A satirical dystopian apartment management app featuring an AI landlord, prediction markets, debt surveillance, and a unit marketplace. Think corporate property management software designed by an authoritarian regime — dark humor wrapped in a clean, professional UI.
 
 ## Concept
