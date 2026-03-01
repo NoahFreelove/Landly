@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Ad {
   title: string;
@@ -8,6 +9,7 @@ interface Ad {
   cta: string;
   disclaimer: string;
   illustration: string;
+  route: string;
 }
 
 const ADS: Ad[] = [
@@ -17,6 +19,7 @@ const ADS: Ad[] = [
     cta: "Learn More",
     disclaimer: "Subject to credit approval. See terms.",
     illustration: "/illustrations/sitting-1.svg",
+    route: "/marketplace",
   },
   {
     title: "Your Community Score Matters",
@@ -24,6 +27,7 @@ const ADS: Ad[] = [
     cta: "View Tips",
     disclaimer: "Community Score affects available units and rates.",
     illustration: "/illustrations/standing-7.svg",
+    route: "/dashboard",
   },
   {
     title: "Refer a Friend to Landly",
@@ -31,6 +35,7 @@ const ADS: Ad[] = [
     cta: "Refer Now",
     disclaimer: "Credits applied after referral's first payment.",
     illustration: "/illustrations/standing-12.svg",
+    route: "/marketplace",
   },
   {
     title: "Smart Home Features Included",
@@ -38,10 +43,12 @@ const ADS: Ad[] = [
     cta: "Explore Features",
     disclaimer: "Smart Home monitoring active 24/7 for your safety.",
     illustration: "/illustrations/sitting-5.svg",
+    route: "/dashboard",
   },
 ];
 
 export default function AdBanner() {
+  const router = useRouter();
   const [currentAd, setCurrentAd] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -80,7 +87,10 @@ export default function AdBanner() {
             <p className="text-xs text-gray-500 leading-relaxed mb-3">
               {ad.subtitle}
             </p>
-            <button className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+            <button
+              onClick={() => router.push(ad.route)}
+              className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            >
               {ad.cta} &rarr;
             </button>
             <p className="text-[9px] text-gray-400 mt-2 leading-relaxed">
