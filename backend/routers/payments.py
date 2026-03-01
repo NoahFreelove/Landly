@@ -65,6 +65,8 @@ def make_payment(req: PaymentRequest, user: User = Depends(get_current_user), db
     payment.status = "paid"
     # Improve social credit for on-time payment
     user.social_credit_score = min(1000, user.social_credit_score + 10)
+    # Accrue Landly Points (1 point per dollar paid)
+    user.landly_points += int(payment.amount)
     db.commit()
     return {"message": "Payment processed", "new_social_credit": user.social_credit_score}
 
@@ -126,6 +128,8 @@ def lump_sum_payment(req: LumpSumRequest, user: User = Depends(get_current_user)
                 debt.status = "completed"
 
     amount_applied = req.amount - remaining
+    # Accrue Landly Points
+    user.landly_points += int(amount_applied)
     db.commit()
 
     return {
@@ -247,3 +251,105 @@ def get_active_plans(user: User = Depends(get_current_user), db: Session = Depen
         "active_count": len(result),
         "this_month_total": round(this_month_total, 2),
     }
+
+@router.post("/autopay")
+def toggle_autopay(
+    req: AutoPayToggleRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if req.enabled:
+        user.autopay_enabled = 1
+        message = "AutoPay enabled! You'll save 2% on all plans. All future rent will use the Freedom plan for maximum flexibility."
+    else:
+        user.autopay_enabled = 0
+        active_debts = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == user.id,
+            KlarnaDebt.status == "active"
+        ).all()
+        for debt in active_debts:
+            debt.apr = min(0.50, debt.apr + 0.05)
+        message = f"AutoPay disabled. A rate adjustment of +5% has been applied to your {len(active_debts)} active plan(s) to reflect updated risk assessment."
+
+    db.commit()
+    return {"message": message, "autopay_enabled": bool(user.autopay_enabled)}
+
+@router.get("/referral-code")
+def get_referral_code(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.referral_code:
+        import hashlib
+        user.referral_code = f"LDLY-{hashlib.md5(user.citizen_id.encode()).hexdigest()[:6].upper()}"
+        db.commit()
+    return {"referral_code": user.referral_code}
+
+@router.post("/use-referral")
+def use_referral(
+    req: ReferralRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if user.referred_by_id:
+        raise HTTPException(status_code=400, detail="You've already used a referral code")
+
+    referrer = db.query(User).filter(User.referral_code == req.referral_code).first()
+    if not referrer:
+        raise HTTPException(status_code=404, detail="Invalid referral code")
+    if referrer.id == user.id:
+        raise HTTPException(status_code=400, detail="You cannot refer yourself")
+
+    user.referred_by_id = referrer.id
+
+    # Give referrer $100 off next installment (skip one installment payment)
+    referrer_debt = db.query(KlarnaDebt).filter(
+        KlarnaDebt.user_id == referrer.id,
+        KlarnaDebt.status == "active"
+    ).first()
+    if referrer_debt and referrer_debt.installments_paid < referrer_debt.installments:
+        referrer_debt.installments_paid += 1
+
+    db.commit()
+    return {
+        "message": "Referral applied! Your friend received a $100 credit. Welcome to Landly!",
+        "referrer": referrer.citizen_id,
+    }
+
+@router.get("/points")
+def get_points(user: User = Depends(get_current_user)):
+    return {
+        "balance": user.landly_points,
+        "rewards": [
+            {"id": "score_boost", "name": "Community Score Boost", "cost": 10000, "description": "+5 Community Score"},
+            {"id": "rate_reduction", "name": "Rate Reduction", "cost": 25000, "description": "0.5% APR reduction on one plan"},
+            {"id": "priority_maintenance", "name": "Priority Maintenance", "cost": 50000, "description": "Skip the maintenance queue"},
+        ]
+    }
+
+@router.post("/points/redeem")
+def redeem_points(
+    req: PointsRedeemRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    costs = {"score_boost": 10000, "rate_reduction": 25000, "priority_maintenance": 50000}
+    if req.reward not in costs:
+        raise HTTPException(status_code=400, detail="Invalid reward")
+    if user.landly_points < costs[req.reward]:
+        raise HTTPException(status_code=400, detail="Insufficient points")
+
+    user.landly_points -= costs[req.reward]
+
+    if req.reward == "score_boost":
+        user.social_credit_score = min(1000, user.social_credit_score + 5)
+        message = "Community Score boosted by 5 points! Every bit helps."
+    elif req.reward == "rate_reduction":
+        debt = db.query(KlarnaDebt).filter(
+            KlarnaDebt.user_id == user.id, KlarnaDebt.status == "active"
+        ).first()
+        if debt:
+            debt.apr = max(0.05, debt.apr - 0.005)
+        message = "0.5% rate reduction applied to your oldest active plan!"
+    else:
+        message = "Priority maintenance activated! You're next in the queue."
+
+    db.commit()
+    return {"message": message, "remaining_points": user.landly_points}
