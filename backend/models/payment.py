@@ -31,5 +31,9 @@ class KlarnaDebt(Base):
     installments = Column(Integer, default=4)
     installments_paid = Column(Integer, default=0)
     status = Column(String, default="active")  # active, overdue, completed
+    rent_month = Column(String, nullable=True)  # e.g. "2026-03" — null for non-rent debts
+    plan_type = Column(String, nullable=True)  # standard, flexible, freedom
+    apr = Column(Float, default=0.24)  # actual APR applied
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="klarna_debts")
