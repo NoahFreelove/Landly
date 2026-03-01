@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
-import { getDashboard, getNotifications } from "@/lib/api";
+import { getDashboard, getNotifications, markNotificationRead, markAllNotificationsRead } from "@/lib/api";
 import RatingModal from "@/components/dashboard/RatingModal";
 import type { DashboardData } from "@/lib/types";
 import { TIER_LABELS } from "@/lib/types";
@@ -90,6 +90,18 @@ export default function DashboardPage() {
     if (!token) return;
     refreshDashboard();
   }, [token, refreshDashboard]);
+
+  async function handleDismissNotification(id: number) {
+    if (!token) return;
+    await markNotificationRead(token, id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }
+
+  async function handleClearAllNotifications() {
+    if (!token) return;
+    await markAllNotificationsRead(token);
+    setNotifications([]);
+  }
 
   // Derive some display values
   const creditScore = dashData?.credit_score
@@ -373,7 +385,11 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="lg:col-span-2">
-                <NotificationFeed notifications={notifications} />
+                <NotificationFeed
+                  notifications={notifications}
+                  onDismiss={handleDismissNotification}
+                  onClearAll={handleClearAllNotifications}
+                />
               </div>
             </div>
 

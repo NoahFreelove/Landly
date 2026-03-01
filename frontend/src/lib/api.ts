@@ -177,6 +177,20 @@ export async function getNotifications(token: string) {
   return api<any[]>("/api/notifications", { token });
 }
 
+export async function markNotificationRead(token: string, notificationId: number) {
+  return api<any>(`/api/notifications/${notificationId}/read`, {
+    method: "POST",
+    token,
+  });
+}
+
+export async function markAllNotificationsRead(token: string) {
+  return api<any>("/api/notifications/read-all", {
+    method: "POST",
+    token,
+  });
+}
+
 // ---- Admin / Simulation ----
 export async function getCurrentDate(token: string) {
   return api<any>("/api/admin/current-date", { token });

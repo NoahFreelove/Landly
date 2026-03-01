@@ -11,6 +11,8 @@ interface Notification {
 
 interface NotificationFeedProps {
   notifications: Notification[];
+  onDismiss: (id: number) => void;
+  onClearAll: () => void;
 }
 
 function categoryIcon(category: Notification["category"]) {
@@ -112,9 +114,7 @@ function formatTimestamp(dateStr: string) {
   }
 }
 
-export default function NotificationFeed({
-  notifications,
-}: NotificationFeedProps) {
+export default function NotificationFeed({ notifications, onDismiss, onClearAll }: NotificationFeedProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
       {/* Header */}
@@ -123,9 +123,19 @@ export default function NotificationFeed({
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
           <h3 className="text-xs font-medium uppercase tracking-wider text-gray-900">Notifications</h3>
         </div>
-        <span className="text-[10px] font-mono text-gray-500">
-          {notifications.filter((n) => !n.is_read).length} unread
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-mono text-gray-500">
+            {notifications.filter((n) => !n.is_read).length} unread
+          </span>
+          {notifications.length > 0 && (
+            <button
+              onClick={onClearAll}
+              className="text-[10px] font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Scrollable List */}
@@ -152,9 +162,19 @@ export default function NotificationFeed({
                 >
                   {n.title}
                 </h4>
-                <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                  {formatTimestamp(n.created_at)}
-                </span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                    {formatTimestamp(n.created_at)}
+                  </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDismiss(n.id); }}
+                    className="text-gray-300 hover:text-gray-500 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed line-clamp-2">
                 {n.message}
