@@ -139,6 +139,19 @@ export default function PaymentModal({
           </div>
         </div>
 
+        {/* Monthly obligation banner */}
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 text-center">
+          <span className="text-[10px] uppercase tracking-wider text-gray-400">Total Due This Month</span>
+          <p className="text-3xl font-bold text-gray-900 mt-1">
+            ${activeKlarna
+              .reduce((sum, d) => sum + d.total_amount / d.installments, 0)
+              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+          <p className="text-[10px] text-gray-400 mt-1">
+            Across {activeKlarna.length} active plan{activeKlarna.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+
         {/* Tab Switcher */}
         <div className="flex border-b border-gray-200">
           <button
@@ -159,7 +172,7 @@ export default function PaymentModal({
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Lump Sum Payment
+            Accelerated Payoff
           </button>
         </div>
 
@@ -217,27 +230,39 @@ export default function PaymentModal({
                     <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-3">
                       Klarna Installments
                     </p>
-                    {activeKlarna.map((debt) => (
-                      <div
-                        key={debt.id}
-                        className="flex items-center justify-between rounded-xl p-4 bg-gray-50 ring-1 ring-gray-200"
-                      >
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-bold text-gray-900">{debt.item_name}</span>
-                          <span className="text-[10px] text-gray-500">
-                            {debt.installments_paid}/{debt.installments} paid
-                          </span>
+                    {activeKlarna.map((debt) => {
+                      const installmentAmount = debt.total_amount / debt.installments;
+                      const remaining = debt.installments - debt.installments_paid;
+                      return (
+                        <div
+                          key={debt.id}
+                          className="flex items-center justify-between rounded-xl p-4 bg-gray-50 ring-1 ring-gray-200 mb-2"
+                        >
+                          <div className="flex-1">
+                            <span className="text-xs font-bold text-gray-900">{debt.item_name}</span>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {debt.plan_type && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-pink-600">
+                                  {debt.plan_type}
+                                </span>
+                              )}
+                              {debt.apr > 0 && (
+                                <span className="text-[9px] text-gray-400">
+                                  {(debt.apr * 100).toFixed(1)}% APR
+                                </span>
+                              )}
+                              <span className="text-[9px] text-gray-400">
+                                {debt.installments_paid}/{debt.installments} paid
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-gray-900">${installmentAmount.toFixed(2)}</p>
+                            <p className="text-[9px] text-gray-400">{remaining} remaining</p>
+                          </div>
                         </div>
-                        <span className="text-sm font-bold text-gray-900">
-                          $
-                          {(
-                            (debt.total_amount / debt.installments) *
-                            (debt.installments - debt.installments_paid)
-                          ).toFixed(2)}{" "}
-                          remaining
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </>
@@ -269,8 +294,8 @@ export default function PaymentModal({
                 </div>
               </div>
               <p className="text-[10px] text-gray-400">
-                This payment will be applied to your oldest outstanding debts first. Overdue
-                balances are prioritized.
+                Pay more now to reduce your plans faster. Your future self will thank you!
+                Applied to oldest outstanding debts first.
               </p>
               <button
                 onClick={handleLumpSum}
