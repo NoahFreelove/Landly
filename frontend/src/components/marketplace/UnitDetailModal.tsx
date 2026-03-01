@@ -8,6 +8,23 @@ import {
 } from "baseui/modal";
 import { Button } from "baseui/button";
 
+const APARTMENT_PHOTOS = [
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+  "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&q=80",
+  "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80",
+  "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
+  "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&q=80",
+];
+
+function getUnitPhoto(unitId: number): string {
+  return APARTMENT_PHOTOS[unitId % APARTMENT_PHOTOS.length];
+}
+
 interface UnitDetailModalProps {
   unit: Unit | null;
   isOpen: boolean;
@@ -85,30 +102,29 @@ export default function UnitDetailModal({
       }}
     >
       <ModalBody style={{ padding: 0, margin: 0 }}>
-        {/* Header */}
-        <div className="relative bg-gray-50 p-8 pb-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
-            Apartment Details
-          </p>
-          <h2 className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
-            {unit.name}
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            {unit.sector} &bull; Floor {unit.floor} &bull; {unit.sqft.toLocaleString()} sqft
-          </p>
-
-          {/* Availability */}
-          <div className="mt-4 flex items-center gap-2">
-            <span
-              className={`inline-block h-2.5 w-2.5 rounded-full ${
-                unit.is_available ? "bg-green-500" : "bg-red-500"
-              }`}
-            />
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-900">
-              {unit.is_available
-                ? "Available"
-                : "Currently Occupied"}
-            </span>
+        {/* Header with photo */}
+        <div className="relative">
+          <img
+            src={getUnitPhoto(unit.id)}
+            alt={unit.name}
+            className="w-full h-48 object-cover"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8 pt-16">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+              Apartment Details
+            </p>
+            <h2 className="mt-1 text-3xl font-bold tracking-tight text-white">
+              {unit.name}
+            </h2>
+            <p className="mt-1 text-sm text-white/80">
+              {unit.sector} &bull; Floor {unit.floor} &bull; {unit.sqft.toLocaleString()} sqft
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <span className={`inline-block h-2.5 w-2.5 rounded-full ${unit.is_available ? "bg-green-500" : "bg-red-500"}`} />
+              <span className="text-xs font-bold uppercase tracking-wider text-white">
+                {unit.is_available ? "Available" : "Currently Occupied"}
+              </span>
+            </div>
           </div>
         </div>
 

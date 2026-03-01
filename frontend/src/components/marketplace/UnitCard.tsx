@@ -2,6 +2,23 @@
 
 import type { Unit } from "@/lib/types";
 
+const APARTMENT_PHOTOS = [
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+  "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&q=80",
+  "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80",
+  "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
+  "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&q=80",
+];
+
+function getUnitPhoto(unitId: number): string {
+  return APARTMENT_PHOTOS[unitId % APARTMENT_PHOTOS.length];
+}
+
 interface UnitCardProps {
   unit: Unit;
   onClick: (unit: Unit) => void;
@@ -21,34 +38,28 @@ export default function UnitCard({ unit, onClick, userScore = 0 }: UnitCardProps
       onClick={() => onClick(unit)}
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl bg-white border border-gray-200 transition-shadow hover:shadow-md"
     >
-      {/* Image placeholder header */}
+      {/* Photo header */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
-        <div className="flex h-full w-full items-center justify-center">
-          <img
-            src="/illustrations/standing-3.svg"
-            alt=""
-            className="h-24 w-24 opacity-20"
-          />
-        </div>
+        <img
+          src={getUnitPhoto(unit.id)}
+          alt={unit.name}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
 
         {/* Availability badge */}
         <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full border border-gray-200 bg-white/90 px-3 py-1 backdrop-blur-md">
-          <span
-            className={`inline-block h-2 w-2 rounded-full ${
-              unit.is_available ? "bg-green-500" : "bg-red-500"
-            }`}
-          />
+          <span className={`inline-block h-2 w-2 rounded-full ${unit.is_available ? "bg-green-500" : "bg-red-500"}`} />
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-900">
             {unit.is_available ? "Available" : "Occupied"}
           </span>
         </div>
 
         {/* Unit name overlay */}
-        <div className="absolute bottom-4 left-4">
-          <h3 className="text-xl font-bold tracking-tight text-gray-900">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-4 pt-8">
+          <h3 className="text-xl font-bold tracking-tight text-white">
             {unit.name}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-white/80">
             {unit.sector} &bull; Floor {unit.floor}
           </p>
         </div>
