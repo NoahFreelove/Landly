@@ -190,6 +190,19 @@ def seed():
     db.add_all(users)
     db.flush()
 
+    # Set new fields on seeded users
+    users[0].default_plan_type = "flexible"
+    users[0].landly_points = 2340
+    users[0].referral_code = "LDLY-A7291X"
+
+    users[1].default_plan_type = "freedom"
+    users[1].landly_points = 870
+    users[1].referral_code = "LDLY-J0042B"
+
+    users[2].default_plan_type = "standard"
+    users[2].landly_points = 0
+    users[2].referral_code = "LDLY-ADMIN9"
+
     now = datetime.now(timezone.utc)
 
     # ── Generated Users (97 more) ──────────────────────────
@@ -302,6 +315,101 @@ def seed():
         ),
     ]
     db.add_all(klarna)
+
+    # ── Stacking Rent Plans (the core horror) ─────────────
+    # Alex Mercer (RES-7291) on Flexible plan — 3 months of stacked rent
+    rent_plans = [
+        KlarnaDebt(
+            user_id=users[0].id,
+            item_name="2025-12 Rent — The Meridian 4B",
+            total_amount=2450.00,
+            installments=6,
+            installments_paid=2,
+            status="active",
+            rent_month="2025-12",
+            plan_type="flexible",
+            apr=0.24,
+        ),
+        KlarnaDebt(
+            user_id=users[0].id,
+            item_name="2026-01 Rent — The Meridian 4B",
+            total_amount=2450.00,
+            installments=6,
+            installments_paid=1,
+            status="active",
+            rent_month="2026-01",
+            plan_type="flexible",
+            apr=0.26,
+        ),
+        KlarnaDebt(
+            user_id=users[0].id,
+            item_name="2026-02 Rent — The Meridian 4B",
+            total_amount=2450.00,
+            installments=6,
+            installments_paid=0,
+            status="active",
+            rent_month="2026-02",
+            plan_type="flexible",
+            apr=0.28,
+        ),
+        # Jordan Blake (RES-0042) on Freedom plan — deeper in debt
+        KlarnaDebt(
+            user_id=users[1].id,
+            item_name="2025-10 Rent — The Elm 3B",
+            total_amount=1450.00,
+            installments=12,
+            installments_paid=4,
+            status="active",
+            rent_month="2025-10",
+            plan_type="freedom",
+            apr=0.35,
+        ),
+        KlarnaDebt(
+            user_id=users[1].id,
+            item_name="2025-11 Rent — The Elm 3B",
+            total_amount=1450.00,
+            installments=12,
+            installments_paid=3,
+            status="active",
+            rent_month="2025-11",
+            plan_type="freedom",
+            apr=0.37,
+        ),
+        KlarnaDebt(
+            user_id=users[1].id,
+            item_name="2025-12 Rent — The Elm 3B",
+            total_amount=1450.00,
+            installments=12,
+            installments_paid=2,
+            status="active",
+            rent_month="2025-12",
+            plan_type="freedom",
+            apr=0.39,
+        ),
+        KlarnaDebt(
+            user_id=users[1].id,
+            item_name="2026-01 Rent — The Elm 3B",
+            total_amount=1450.00,
+            installments=12,
+            installments_paid=1,
+            status="overdue",
+            rent_month="2026-01",
+            plan_type="freedom",
+            apr=0.41,
+        ),
+        KlarnaDebt(
+            user_id=users[1].id,
+            item_name="2026-02 Rent — The Elm 3B",
+            total_amount=1450.00,
+            installments=12,
+            installments_paid=0,
+            status="active",
+            rent_month="2026-02",
+            plan_type="freedom",
+            apr=0.43,
+        ),
+    ]
+    db.add_all(rent_plans)
 
     # ── Markets (eviction-focused) ────────────────────────
     markets = [
