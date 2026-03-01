@@ -13,6 +13,7 @@ interface UnitDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRent: (unit: Unit) => void;
+  userScore?: number;
 }
 
 function bedroomLabel(bedrooms: number): string {
@@ -26,8 +27,11 @@ export default function UnitDetailModal({
   isOpen,
   onClose,
   onRent,
+  userScore = 0,
 }: UnitDetailModalProps) {
   if (!unit) return null;
+
+  const meetsScoreRequirement = userScore >= unit.community_score_required;
 
   return (
     <Modal
@@ -123,8 +127,10 @@ export default function UnitDetailModal({
         {/* Action area */}
         <div className="flex flex-col gap-3 p-6">
           <div className="flex flex-col gap-1 text-center">
-            <p className="text-xs text-gray-500">
-              This unit requires a minimum Community Score of {unit.community_score_required}.
+            <p className={`text-xs ${meetsScoreRequirement ? "text-gray-500" : "text-red-500 font-medium"}`}>
+              {meetsScoreRequirement
+                ? `This unit requires a minimum Community Score of ${unit.community_score_required}.`
+                : `Your Community Score does not meet the minimum requirement of ${unit.community_score_required}.`}
             </p>
             {unit.smart_home && (
               <p className="text-xs text-gray-500">
@@ -134,45 +140,36 @@ export default function UnitDetailModal({
           </div>
           <Button
             onClick={() => onRent(unit)}
-            disabled={!unit.is_available}
+            disabled={!unit.is_available || !meetsScoreRequirement}
             overrides={{
               BaseButton: {
                 style: {
                   width: '100%',
                   height: '3rem',
-                  backgroundColor: 'rgba(255, 179, 199, 0.1)',
-                  borderTopWidth: '1px',
-                  borderRightWidth: '1px',
-                  borderBottomWidth: '1px',
-                  borderLeftWidth: '1px',
-                  borderTopStyle: 'solid',
-                  borderRightStyle: 'solid',
-                  borderBottomStyle: 'solid',
-                  borderLeftStyle: 'solid',
-                  borderTopColor: 'rgba(255, 179, 199, 0.3)',
-                  borderRightColor: 'rgba(255, 179, 199, 0.3)',
-                  borderBottomColor: 'rgba(255, 179, 199, 0.3)',
-                  borderLeftColor: 'rgba(255, 179, 199, 0.3)',
+                  backgroundColor: meetsScoreRequirement ? '#FFB3C7' : '#f3f4f6',
                   borderTopLeftRadius: '0.75rem',
                   borderTopRightRadius: '0.75rem',
                   borderBottomLeftRadius: '0.75rem',
                   borderBottomRightRadius: '0.75rem',
-                  color: '#FFB3C7',
+                  color: meetsScoreRequirement ? '#000000' : '#9ca3af',
                   fontWeight: 700,
                   letterSpacing: '0.05em',
                   fontSize: '1rem',
                   ':hover': {
-                    backgroundColor: 'rgba(255, 179, 199, 0.2)',
+                    backgroundColor: meetsScoreRequirement ? '#FFA0B8' : '#f3f4f6',
                   },
                   ':disabled': {
-                    opacity: 0.4,
+                    opacity: meetsScoreRequirement ? 0.4 : 1,
                     cursor: 'not-allowed',
                   },
                 },
               },
             }}
           >
-            Apply with Klarna
+            {meetsScoreRequirement
+              ? <span className="flex items-center gap-2">Apply with <img src="/klarna.png" alt="Klarna" style={{ height: '1rem', display: 'inline-block' }} /></span>
+              : "Score Too Low"
+            }
           </Button>
         </div>
       </ModalBody>

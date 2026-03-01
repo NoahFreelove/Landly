@@ -1,46 +1,46 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { addTokens } from "@/lib/api";
 
-const INITIAL_BALANCE = 1000;
-const STORAGE_KEY = "landly_wallet_balance";
-
-/**
- * Self-contained crypto wallet widget displaying LDLY balance.
- *
- * Exposes a custom event so other components (BetModal) can deduct funds
- * by dispatching a `landly:wallet:debit` CustomEvent with `detail.amount`.
- */
 export default function WalletWidget() {
-  const [balance, setBalance] = useState<number>(() => {
-    if (typeof window === "undefined") return INITIAL_BALANCE;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? parseFloat(stored) : INITIAL_BALANCE;
-  });
+  const { user, token, updateBalance } = useAuth();
   const [flash, setFlash] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addAmount, setAddAmount] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
-  // Persist balance changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, balance.toString());
-  }, [balance]);
+  const balance = user?.token_balance ?? 0;
 
-  // Listen for debit events from BetModal
-  const handleDebit = useCallback((e: Event) => {
-    const amount = (e as CustomEvent).detail?.amount;
-    if (typeof amount === "number" && amount > 0) {
-      setBalance((prev) => {
-        const next = Math.max(0, prev - amount);
-        return parseFloat(next.toFixed(2));
-      });
-      setFlash(true);
-      setTimeout(() => setFlash(false), 600);
-    }
+  // Listen for wallet update events (fired by BetModal after successful bet)
+  const handleUpdate = useCallback(() => {
+    setFlash(true);
+    setTimeout(() => setFlash(false), 600);
   }, []);
 
   useEffect(() => {
-    window.addEventListener("landly:wallet:debit", handleDebit);
-    return () => window.removeEventListener("landly:wallet:debit", handleDebit);
-  }, [handleDebit]);
+    window.addEventListener("landly:wallet:update", handleUpdate);
+    return () => window.removeEventListener("landly:wallet:update", handleUpdate);
+  }, [handleUpdate]);
+
+  const handleAddTokens = async () => {
+    const amt = parseFloat(addAmount);
+    if (!token || !amt || amt <= 0) return;
+    setIsAdding(true);
+    try {
+      const res = await addTokens(token, amt);
+      updateBalance(res.new_balance);
+      setAddAmount("");
+      setShowAdd(false);
+      setFlash(true);
+      setTimeout(() => setFlash(false), 600);
+    } catch {
+      // silently fail
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   return (
     <div
@@ -85,8 +85,44 @@ export default function WalletWidget() {
         </div>
       </div>
 
-      {/* Thin accent line at bottom */}
+      {/* Thin accent line */}
       <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
+
+      {/* Add Tokens section */}
+      <div className="mt-3">
+        {!showAdd ? (
+          <button
+            onClick={() => setShowAdd(true)}
+            className="w-full rounded-lg border border-dashed border-blue-300 bg-blue-50/50 py-2 text-xs font-bold text-blue-500 transition-colors hover:bg-blue-50"
+          >
+            + Add Tokens
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              value={addAmount}
+              onChange={(e) => setAddAmount(e.target.value)}
+              placeholder="Amount"
+              className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-bold text-gray-900 placeholder-gray-300 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+            />
+            <button
+              onClick={handleAddTokens}
+              disabled={isAdding || !addAmount || parseFloat(addAmount) <= 0}
+              className="rounded-lg bg-blue-500 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+            >
+              {isAdding ? "..." : "Buy"}
+            </button>
+            <button
+              onClick={() => { setShowAdd(false); setAddAmount(""); }}
+              className="rounded-lg px-2 py-2 text-xs text-gray-400 hover:text-gray-600"
+            >
+              {"\u2715"}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ class UserResponse(BaseModel):
     status: str
     tier: str
     unit_id: Optional[int] = None
+    token_balance: float = 1000.0
 
     class Config:
         from_attributes = True

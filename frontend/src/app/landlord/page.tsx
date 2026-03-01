@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import VoiceVisualizer from "@/components/landlord/VoiceVisualizer";
@@ -22,6 +22,15 @@ export default function LandlordVoicePage() {
   const [state, setState] = useState<VoiceState>("idle");
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Clear chat history every time the assistant screen is opened
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_BASE}/api/chat/history`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(() => {});
+  }, [token]);
 
   const handleRecordingComplete = useCallback(
     async (audioBlob: Blob) => {

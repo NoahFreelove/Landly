@@ -43,9 +43,18 @@ export default function PushToTalk({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
-      });
+      // Pick a supported audio format
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")
+        ? "audio/ogg;codecs=opus"
+        : "";
+
+      const mediaRecorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -56,7 +65,7 @@ export default function PushToTalk({
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: mediaRecorder.mimeType || "audio/webm" });
         chunksRef.current = [];
 
         // Stop all tracks to release the microphone
@@ -70,7 +79,7 @@ export default function PushToTalk({
         }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(250); // Request data every 250ms for reliable chunks
       isRecordingRef.current = true;
       setDuration(0);
       onRecordingStart?.();

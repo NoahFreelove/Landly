@@ -16,6 +16,7 @@ class User(Base):
     status = Column(String, default="compliant")  # compliant, warning, probation, eviction_pending
     tier = Column(String, default="bronze")  # bronze, silver, gold, platinum
     unit_id = Column(Integer, ForeignKey("units.id"), nullable=True)
+    token_balance = Column(Float, default=1000.0)
 
     unit = relationship("Unit", back_populates="residents")
     payments = relationship("Payment", back_populates="user")

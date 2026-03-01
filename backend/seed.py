@@ -138,6 +138,7 @@ def seed():
             status="warning",
             tier="silver",
             unit_id=units[0].id,
+            token_balance=925.0,
         ),
         User(
             citizen_id="RES-0042",
@@ -148,6 +149,7 @@ def seed():
             status="probation",
             tier="bronze",
             unit_id=units[5].id,
+            token_balance=990.0,
         ),
         User(
             citizen_id="RES-9999",
@@ -158,6 +160,7 @@ def seed():
             status="compliant",
             tier="platinum",
             unit_id=units[3].id,
+            token_balance=1000.0,
         ),
     ]
     db.add_all(users)

@@ -92,7 +92,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Humaaan illustration */}
-      <img src="/illustrations/sitting-3.svg" alt="" className="w-20 opacity-40 mx-auto mt-auto mb-4" />
+      <img src="/illustrations/sitting-4.svg" alt="" className="w-20 opacity-40 mx-auto mt-auto mb-4" />
 
       {/* Bottom: Logout */}
       <div className="border-t border-gray-200 px-3 py-4">

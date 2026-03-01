@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class MarketResponse(BaseModel):
     id: int
@@ -33,3 +34,10 @@ class LeaderboardEntry(BaseModel):
     social_credit_score: int
     eviction_odds: float
     total_owed: float
+
+class AddTokensRequest(BaseModel):
+    amount: float
+    klarna_installments: Optional[int] = None
+
+class AddTokensResponse(BaseModel):
+    new_balance: float

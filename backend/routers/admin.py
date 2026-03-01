@@ -82,9 +82,11 @@ def advance_month(db: Session = Depends(get_db)):
     events = []
 
     # Process all pending payments - mark as overdue
+    # Use naive UTC datetime since SQLite stores naive datetimes
+    now_utc = datetime.utcnow()
     pending = db.query(Payment).filter(Payment.status == "pending").all()
     for p in pending:
-        if p.due_date and p.due_date <= datetime.now(timezone.utc):
+        if p.due_date and p.due_date <= now_utc:
             p.status = "overdue"
             events.append(f"Payment #{p.id} marked overdue")
 

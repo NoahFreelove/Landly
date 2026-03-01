@@ -17,7 +17,7 @@ interface Filters {
 }
 
 export default function MarketplacePage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -201,6 +201,7 @@ export default function MarketplacePage() {
                 key={unit.id}
                 unit={unit}
                 onClick={handleCardClick}
+                userScore={user?.social_credit_score ?? 0}
               />
             ))}
           </div>
@@ -220,6 +221,7 @@ export default function MarketplacePage() {
         isOpen={detailOpen}
         onClose={() => setDetailOpen(false)}
         onRent={handleRent}
+        userScore={user?.social_credit_score ?? 0}
       />
 
       <KlarnaCheckout

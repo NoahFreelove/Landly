@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Market } from "@/lib/types";
-import { placeBet } from "@/lib/api";
+import { placeBet, addTokens } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
   Modal,
@@ -19,6 +19,7 @@ interface BetModalProps {
 }
 
 type Position = "yes" | "no";
+type KlarnaStep = "select" | "verifying" | "done";
 
 export default function BetModal({
   market,
@@ -26,12 +27,20 @@ export default function BetModal({
   onClose,
   onBetPlaced,
 }: BetModalProps) {
-  const { token } = useAuth();
+  const { user, token, updateBalance } = useAuth();
   const [position, setPosition] = useState<Position>("yes");
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Klarna financing state
+  const [showKlarna, setShowKlarna] = useState(false);
+  const [klarnaStep, setKlarnaStep] = useState<KlarnaStep>("select");
+  const [klarnaPlan, setKlarnaPlan] = useState<number>(3);
+  const [klarnaProgress, setKlarnaProgress] = useState(0);
+
+  const balance = user?.token_balance ?? 0;
 
   // Reset state when modal opens
   useEffect(() => {
@@ -41,6 +50,10 @@ export default function BetModal({
       setError(null);
       setShowConfirmation(false);
       setIsSubmitting(false);
+      setShowKlarna(false);
+      setKlarnaStep("select");
+      setKlarnaPlan(3);
+      setKlarnaProgress(0);
     }
   }, [isOpen]);
 
@@ -51,11 +64,13 @@ export default function BetModal({
       : market.no_price
     : 0;
   const shares = price > 0 ? parsedAmount / price : 0;
-  const potentialPayout = shares; // Each share pays out $1 if correct
+  const potentialPayout = shares;
   const profit = potentialPayout - parsedAmount;
+  const deficit = parsedAmount - balance;
+  const isInsufficient = parsedAmount > 0 && parsedAmount > balance;
 
   const handleSubmit = useCallback(async () => {
-    if (!market || !token || parsedAmount <= 0) return;
+    if (!market || !token || parsedAmount <= 0 || isInsufficient) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -63,12 +78,11 @@ export default function BetModal({
     try {
       await placeBet(token, market.id, position, parsedAmount);
 
-      // Dispatch wallet debit event
-      window.dispatchEvent(
-        new CustomEvent("landly:wallet:debit", {
-          detail: { amount: parsedAmount },
-        })
-      );
+      // Optimistically update balance
+      updateBalance(balance - parsedAmount);
+
+      // Dispatch wallet update event for flash animation
+      window.dispatchEvent(new CustomEvent("landly:wallet:update"));
 
       setShowConfirmation(true);
       setTimeout(() => {
@@ -82,12 +96,56 @@ export default function BetModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [market, token, parsedAmount, position, onBetPlaced, onClose]);
+  }, [market, token, parsedAmount, position, isInsufficient, balance, updateBalance, onBetPlaced, onClose]);
+
+  // Klarna financing flow
+  const handleKlarnaFinance = useCallback(async () => {
+    if (!token || deficit <= 0) return;
+
+    setKlarnaStep("verifying");
+    setKlarnaProgress(0);
+
+    // Simulate verification progress bar
+    const steps = [10, 25, 40, 55, 70, 85, 95, 100];
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise((r) => setTimeout(r, 300));
+      setKlarnaProgress(steps[i]);
+    }
+
+    try {
+      const res = await addTokens(token, Math.ceil(deficit), klarnaPlan);
+      updateBalance(res.new_balance);
+      window.dispatchEvent(new CustomEvent("landly:wallet:update"));
+      setKlarnaStep("done");
+
+      // Now auto-place the bet
+      await new Promise((r) => setTimeout(r, 500));
+      if (market) {
+        await placeBet(token, market.id, position, parsedAmount);
+        updateBalance(res.new_balance - parsedAmount);
+        window.dispatchEvent(new CustomEvent("landly:wallet:update"));
+      }
+
+      setShowKlarna(false);
+      setShowConfirmation(true);
+      setTimeout(() => {
+        onBetPlaced();
+        onClose();
+      }, 1500);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Klarna financing failed."
+      );
+      setShowKlarna(false);
+    }
+  }, [token, deficit, klarnaPlan, market, position, parsedAmount, updateBalance, onBetPlaced, onClose]);
 
   if (!market) return null;
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = Math.round(market.no_price * 100);
+
+  const apr = 0.35;
 
   return (
     <Modal
@@ -154,6 +212,121 @@ export default function BetModal({
           </div>
         )}
 
+        {/* Klarna financing overlay */}
+        {showKlarna && (
+          <div className="absolute inset-0 z-20 flex flex-col bg-white">
+            <div className="border-b border-gray-200 p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <img src="/klarna.png" alt="Klarna" className="h-5" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <p className="text-sm font-bold text-gray-900">Finance with Klarna</p>
+                </div>
+                {klarnaStep === "select" && (
+                  <button
+                    onClick={() => setShowKlarna(false)}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                  >
+                    {"\u2715"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 p-5">
+              {klarnaStep === "select" && (
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-pink-50 border border-pink-100 p-3">
+                    <p className="text-xs font-medium text-pink-600">Financing</p>
+                    <p className="text-lg font-bold text-gray-900">{Math.ceil(deficit)} LDLY</p>
+                    <p className="text-[10px] text-gray-500">to cover your position deficit</p>
+                  </div>
+
+                  <p className="text-xs font-medium text-gray-500">Select Payment Plan</p>
+
+                  {[3, 6, 12].map((months) => {
+                    const total = Math.ceil(deficit) * (1 + apr * months / 12);
+                    const monthly = total / months;
+                    return (
+                      <button
+                        key={months}
+                        onClick={() => setKlarnaPlan(months)}
+                        className={`w-full rounded-lg border p-3 text-left transition-all ${
+                          klarnaPlan === months
+                            ? "border-pink-400 bg-pink-50/50 ring-1 ring-pink-200"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-bold text-gray-900">{months} months</p>
+                            <p className="text-[10px] text-gray-500">35% APR</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-gray-900">{monthly.toFixed(2)} LDLY/mo</p>
+                            <p className="text-[10px] text-gray-400">Total: {total.toFixed(2)} LDLY</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+
+                  <Button
+                    onClick={handleKlarnaFinance}
+                    overrides={{
+                      BaseButton: {
+                        style: {
+                          width: '100%',
+                          backgroundColor: '#ec4899',
+                          paddingTop: '0.875rem',
+                          paddingBottom: '0.875rem',
+                          borderTopLeftRadius: '0.5rem',
+                          borderTopRightRadius: '0.5rem',
+                          borderBottomLeftRadius: '0.5rem',
+                          borderBottomRightRadius: '0.5rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          color: '#ffffff',
+                          ':hover': {
+                            backgroundColor: '#db2777',
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    Finance & Place Position
+                  </Button>
+                </div>
+              )}
+
+              {klarnaStep === "verifying" && (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-pink-200 border-t-pink-500" />
+                  <p className="mb-1 text-sm font-bold text-gray-900">Verifying with Klarna...</p>
+                  <p className="mb-4 text-xs text-gray-500">Processing your financing application</p>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-pink-500 transition-all duration-300"
+                      style={{ width: `${klarnaProgress}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs font-mono text-gray-400">{klarnaProgress}%</p>
+                </div>
+              )}
+
+              {klarnaStep === "done" && (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+                    <span className="text-2xl text-green-500">{"\u2713"}</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-900">Approved! Placing position...</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="border-b border-gray-200 p-5">
           <div className="flex items-center justify-between">
@@ -170,6 +343,13 @@ export default function BetModal({
           <h2 className="mt-2 text-base font-bold leading-snug text-gray-900">
             {market.question}
           </h2>
+          {/* Balance display */}
+          <div className="mt-2 flex items-center gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Balance:</span>
+            <span className="text-xs font-bold tabular-nums text-gray-700">
+              {balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LDLY
+            </span>
+          </div>
         </div>
 
         {/* Body */}
@@ -326,10 +506,10 @@ export default function BetModal({
                 Root: {
                   style: {
                     backgroundColor: '#ffffff',
-                    borderTopColor: '#e5e7eb',
-                    borderRightColor: '#e5e7eb',
-                    borderBottomColor: '#e5e7eb',
-                    borderLeftColor: '#e5e7eb',
+                    borderTopColor: isInsufficient ? '#fca5a5' : '#e5e7eb',
+                    borderRightColor: isInsufficient ? '#fca5a5' : '#e5e7eb',
+                    borderBottomColor: isInsufficient ? '#fca5a5' : '#e5e7eb',
+                    borderLeftColor: isInsufficient ? '#fca5a5' : '#e5e7eb',
                     borderTopWidth: '1px',
                     borderRightWidth: '1px',
                     borderBottomWidth: '1px',
@@ -410,8 +590,28 @@ export default function BetModal({
             </div>
           </div>
 
+          {/* Insufficient balance warning */}
+          {isInsufficient && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-amber-500 text-sm">{"\u26A0"}</span>
+                <p className="text-xs font-bold text-amber-700">Insufficient LDLY Balance</p>
+              </div>
+              <p className="text-xs text-amber-600 mb-3">
+                You need <span className="font-bold">{deficit.toFixed(2)} more LDLY</span> to place this position.
+              </p>
+              <button
+                onClick={() => setShowKlarna(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-pink-500 py-2.5 text-xs font-bold text-white transition-colors hover:bg-pink-600"
+              >
+                <img src="/klarna.png" alt="" className="h-4 brightness-0 invert" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                Finance with Klarna
+              </button>
+            </div>
+          )}
+
           {/* Potential payout calculation */}
-          {parsedAmount > 0 && (
+          {parsedAmount > 0 && !isInsufficient && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>Shares</span>
@@ -463,13 +663,13 @@ export default function BetModal({
           {/* Submit */}
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || parsedAmount <= 0}
+            disabled={isSubmitting || parsedAmount <= 0 || isInsufficient}
             isLoading={isSubmitting}
             overrides={{
               BaseButton: {
                 style: {
                   width: '100%',
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: isInsufficient ? '#9ca3af' : '#3b82f6',
                   paddingTop: '0.875rem',
                   paddingBottom: '0.875rem',
                   borderTopLeftRadius: '0.5rem',
@@ -481,10 +681,10 @@ export default function BetModal({
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   color: '#ffffff',
-                  boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.2)',
+                  boxShadow: isInsufficient ? 'none' : '0 4px 6px -1px rgba(59, 130, 246, 0.2)',
                   ':hover': {
-                    backgroundColor: '#2563eb',
-                    boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.25)',
+                    backgroundColor: isInsufficient ? '#9ca3af' : '#2563eb',
+                    boxShadow: isInsufficient ? 'none' : '0 10px 15px -3px rgba(59, 130, 246, 0.25)',
                   },
                   ':disabled': {
                     opacity: 0.5,
@@ -495,7 +695,7 @@ export default function BetModal({
               },
             }}
           >
-            {isSubmitting ? "Processing..." : "Confirm Position"}
+            {isSubmitting ? "Processing..." : isInsufficient ? "Insufficient Balance" : "Confirm Position"}
           </Button>
         </div>
       </ModalBody>

@@ -89,10 +89,10 @@ export default function KlarnaCheckout({
 
   if (!unit) return null;
 
-  const installmentPayment = (
-    (unit.monthly_rent_usd * selectedPlan * 1.35) /
-    selectedPlan
-  ).toFixed(2);
+  // Finance security deposit (2x monthly rent) over term with 35% APR simple interest
+  const deposit = unit.monthly_rent_usd * 2;
+  const totalWithInterest = deposit * (1 + 0.35 * selectedPlan / 12);
+  const installmentPayment = (totalWithInterest / selectedPlan).toFixed(2);
 
   return (
     <Modal
@@ -196,10 +196,9 @@ export default function KlarnaCheckout({
               {/* Plan options */}
               <div className="flex flex-col gap-3">
                 {PLANS.map((plan) => {
-                  const payment = (
-                    (unit.monthly_rent_usd * plan.months * 1.35) /
-                    plan.months
-                  ).toFixed(2);
+                  const planDeposit = unit.monthly_rent_usd * 2;
+                  const planTotal = planDeposit * (1 + 0.35 * plan.months / 12);
+                  const payment = (planTotal / plan.months).toFixed(2);
                   const isSelected = selectedPlan === plan.months;
                   return (
                     <button

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User, Market, MarketBet, Payment
-from schemas import MarketResponse, MarketBetRequest, MarketBetResponse, LeaderboardEntry
+from models import User, Market, MarketBet, Payment, KlarnaDebt
+from schemas import MarketResponse, MarketBetRequest, MarketBetResponse, LeaderboardEntry, AddTokensRequest, AddTokensResponse
 from services.auth import get_current_user
 
 router = APIRouter(prefix="/api/markets", tags=["markets"])
@@ -22,6 +22,11 @@ def place_bet(
     if not market:
         raise HTTPException(status_code=404, detail="Market not found or inactive")
 
+    if user.token_balance < req.amount:
+        raise HTTPException(status_code=400, detail="Insufficient LDLY balance")
+
+    user.token_balance -= req.amount
+
     bet = MarketBet(user_id=user.id, market_id=market_id, position=req.position, amount=req.amount)
     db.add(bet)
 
@@ -37,6 +42,33 @@ def place_bet(
     db.commit()
     db.refresh(bet)
     return bet
+
+@router.post("/wallet/add-tokens", response_model=AddTokensResponse)
+def add_tokens(
+    req: AddTokensRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if req.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be positive")
+
+    user.token_balance += req.amount
+
+    if req.klarna_installments:
+        apr = 0.35
+        total_with_interest = req.amount * (1 + apr * req.klarna_installments / 12)
+        debt = KlarnaDebt(
+            user_id=user.id,
+            item_name=f"LDLY Token Purchase — {req.amount:.0f} tokens",
+            total_amount=round(total_with_interest, 2),
+            installments=req.klarna_installments,
+            installments_paid=0,
+            status="active",
+        )
+        db.add(debt)
+
+    db.commit()
+    return AddTokensResponse(new_balance=user.token_balance)
 
 @router.get("/leaderboard", response_model=list[LeaderboardEntry])
 def leaderboard(db: Session = Depends(get_db)):

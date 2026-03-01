@@ -5,6 +5,7 @@ import type { Unit } from "@/lib/types";
 interface UnitCardProps {
   unit: Unit;
   onClick: (unit: Unit) => void;
+  userScore?: number;
 }
 
 function bedroomLabel(bedrooms: number): string {
@@ -13,7 +14,8 @@ function bedroomLabel(bedrooms: number): string {
   return `${bedrooms} Bed`;
 }
 
-export default function UnitCard({ unit, onClick }: UnitCardProps) {
+export default function UnitCard({ unit, onClick, userScore = 0 }: UnitCardProps) {
+  const meetsScoreRequirement = userScore >= unit.community_score_required;
   return (
     <div
       onClick={() => onClick(unit)}
@@ -112,20 +114,31 @@ export default function UnitCard({ unit, onClick }: UnitCardProps) {
           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
             Community Score:
           </span>
-          <span className="text-xs font-bold text-gray-900">
+          <span className={`text-xs font-bold ${meetsScoreRequirement ? "text-green-600" : "text-red-500"}`}>
             {unit.community_score_required}+
           </span>
+          {!meetsScoreRequirement && (
+            <span className="text-[10px] text-red-400">Ineligible</span>
+          )}
         </div>
 
         {/* Klarna CTA */}
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onClick(unit);
+            if (meetsScoreRequirement) onClick(unit);
           }}
-          className="mt-auto flex h-10 items-center justify-center gap-2 rounded-lg border border-[#FFB3C7]/30 bg-[#FFB3C7]/10 text-sm font-bold text-[#FFB3C7] transition-colors hover:bg-[#FFB3C7]/20"
+          disabled={!meetsScoreRequirement}
+          className={`mt-auto flex h-10 items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors ${
+            meetsScoreRequirement
+              ? "bg-[#FFB3C7] text-black hover:bg-[#FFA0B8]"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+          }`}
         >
-          Apply with Klarna
+          {meetsScoreRequirement
+            ? <>Apply with <img src="/klarna.png" alt="Klarna" className="h-4 inline-block" /></>
+            : "Score Too Low"
+          }
         </button>
       </div>
     </div>
